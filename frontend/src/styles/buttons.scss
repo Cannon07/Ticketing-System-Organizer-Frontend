@@ -1,0 +1,19 @@
+.btn {
+  @apply inline-block rounded border border-transparent px-5 py-2 font-semibold capitalize transition;
+}
+
+.btn-sm {
+  @apply rounded-sm px-4 py-1.5 text-sm;
+}
+
+.btn-primary {
+  @apply border-primary bg-primary text-white dark:border-darkmode-primary dark:bg-white dark:text-dark;
+}
+
+.btn-outline-primary {
+  @apply border-dark bg-transparent text-dark hover:bg-dark hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-dark;
+}
+
+.btn-secondary{
+  @apply text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium dark:bg-darkmode-theme-light dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700;
+}

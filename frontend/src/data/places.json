@@ -1,0 +1,271 @@
+{
+  "indianCities": [
+    {
+      "id": 1,
+      "name": "Mumbai",
+      "popular": true
+    },
+    {
+      "id": 2,
+      "name": "Delhi",
+      "popular": true
+    },
+    {
+      "id": 3,
+      "name": "Bangalore",
+      "popular": true
+    },
+    {
+      "id": 4,
+      "name": "Hyderabad",
+      "popular": true
+    },
+    {
+      "id": 5,
+      "name": "Chennai",
+      "popular": true
+    },
+    {
+      "id": 6,
+      "name": "Kolkata",
+      "popular": false
+    },
+    {
+      "id": 7,
+      "name": "Ahmedabad",
+      "popular": false
+    },
+    {
+      "id": 8,
+      "name": "Pune",
+      "popular": false
+    },
+    {
+      "id": 9,
+      "name": "Jaipur",
+      "popular": false
+    },
+    {
+      "id": 10,
+      "name": "Lucknow",
+      "popular": false
+    },
+    {
+      "id": 11,
+      "name": "Chandigarh",
+      "popular": false
+    },
+    {
+      "id": 12,
+      "name": "Bhopal",
+      "popular": false
+    },
+    {
+      "id": 13,
+      "name": "Indore",
+      "popular": false
+    },
+    {
+      "id": 14,
+      "name": "Surat",
+      "popular": false
+    },
+    {
+      "id": 15,
+      "name": "Kanpur",
+      "popular": false
+    },
+
+    {
+      "id": 16,
+      "name": "Nagpur",
+      "popular": false
+    },
+    {
+      "id": 17,
+      "name": "Visakhapatnam",
+      "popular": false
+    },
+    {
+      "id": 18,
+      "name": "Thane",
+      "popular": false
+    },
+    {
+      "id": 19,
+      "name": "Bhopal",
+      "popular": false
+    },
+    {
+      "id": 20,
+      "name": "Coimbatore",
+      "popular": false
+    },
+    {
+      "id": 21,
+      "name": "Agra",
+      "popular": false
+    },
+    {
+      "id": 22,
+      "name": "Madurai",
+      "popular": false
+    },
+    {
+      "id": 23,
+      "name": "Faridabad",
+      "popular": false
+    },
+    {
+      "id": 24,
+      "name": "Meerut",
+      "popular": false
+    },
+    {
+      "id": 25,
+      "name": "Rajkot",
+      "popular": false
+    },
+    {
+      "id": 26,
+      "name": "Varanasi",
+      "popular": false
+    },
+    {
+      "id": 27,
+      "name": "Srinagar",
+      "popular": false
+    },
+    {
+      "id": 28,
+      "name": "Amritsar",
+      "popular": false
+    },
+    {
+      "id": 29,
+      "name": "Allahabad",
+      "popular": false
+    },
+    {
+      "id": 30,
+      "name": "Howrah",
+      "popular": false
+    },
+    {
+      "id": 31,
+      "name": "Gwalior",
+      "popular": false
+    },
+    {
+      "id": 32,
+      "name": "Jabalpur",
+      "popular": false
+    },
+    {
+      "id": 33,
+      "name": "Vijayawada",
+      "popular": false
+    },
+    {
+      "id": 34,
+      "name": "Jodhpur",
+      "popular": false
+    },
+    {
+      "id": 35,
+      "name": "Noida",
+      "popular": false
+    },
+    {
+      "id": 36,
+      "name": "Cochin",
+      "popular": false
+    },
+    {
+      "id": 37,
+      "name": "Thiruvananthapuram",
+      "popular": false
+    },
+    {
+      "id": 38,
+      "name": "Gurgaon",
+      "popular": false
+    },
+    {
+      "id": 39,
+      "name": "Bhubaneswar",
+      "popular": false
+    },
+    {
+      "id": 40,
+      "name": "Jamshedpur",
+      "popular": false
+    },
+    {
+      "id": 41,
+      "name": "Amravati",
+      "popular": false
+    },
+    {
+      "id": 42,
+      "name": "Dehradun",
+      "popular": false
+    },
+    {
+      "id": 43,
+      "name": "Kota",
+      "popular": false
+    },
+    {
+      "id": 44,
+      "name": "Guwahati",
+      "popular": false
+    },
+    {
+      "id": 45,
+      "name": "Warangal",
+      "popular": false
+    },
+    {
+      "id": 46,
+      "name": "Guntur",
+      "popular": false
+    },
+    {
+      "id": 47,
+      "name": "Ranchi",
+      "popular": false
+    },
+    {
+      "id": 48,
+      "name": "Jhansi",
+      "popular": false
+    },
+    {
+      "id": 49,
+      "name": "Dhanbad",
+      "popular": false
+    },
+    {
+      "id": 50,
+      "name": "Shillong",
+      "popular": false
+    },
+    {
+      "id": 51,
+      "name": "Raipur",
+      "popular": false
+    },
+    {
+      "id": 52,
+      "name": "Trichy",
+      "popular": false
+    },
+    {
+      "id": 53,
+      "name": "Sambhajinagar",
+      "popular": false
+    }
+   
+  ]
+}
