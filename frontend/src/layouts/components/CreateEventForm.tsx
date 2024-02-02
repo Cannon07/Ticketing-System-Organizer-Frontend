@@ -25,11 +25,7 @@ const CreateEventForm = () => {
     const { hasAccount } = useGlobalContext();
     const registered = true;
 
-    if (!registered) {
-      router.push('/register-organizer');
-    }
 
-  if (!hasAccount) return <NotConnected />
 
 
   
@@ -113,6 +109,13 @@ const CreateEventForm = () => {
         'Samuel',
         'Tessa'
     ])
+
+
+    if (!registered) {
+      router.push('/register-organizer');
+    }
+
+  if (!hasAccount) return <NotConnected />
 
     const hashData = generateHash([eventTitle,eventDateTime,eventDuration,aboutEvent,[...tiers],[...selectedArtists],selectedVenue,selectedCategory])
 

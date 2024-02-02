@@ -26,7 +26,6 @@ const OrganizerRegistrationForm = () => {
     const { walletAddress, hasAccount } = useGlobalContext();
 
 
-    if (!hasAccount) return <NotConnected />
 
     
     const contract = useContract(CONTRACT_ADDRESS, metadata);
@@ -40,6 +39,10 @@ const OrganizerRegistrationForm = () => {
     const [email,setEmail] = useState<string>('');
     const [organizationName,setOrganizationName] = useState<string>('');
     const [aadharNumber,setAadharNumber] = useState<string>('');
+
+
+    
+    if (!hasAccount) return <NotConnected />
 
 
 

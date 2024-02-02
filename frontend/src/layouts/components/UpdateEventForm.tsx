@@ -25,11 +25,7 @@ const UpdateEventForm = () => {
     const registered = true;
 
     
-    if (!registered) {
-        router.push('/register-organizer');
-    }
 
-    if (!hasAccount) return <NotConnected />
 
   
 
@@ -132,6 +128,12 @@ const UpdateEventForm = () => {
         'Samuel',
         'Tessa'
     ])
+
+    if (!registered) {
+        router.push('/register-organizer');
+    }
+
+    if (!hasAccount) return <NotConnected />
 
 
 
