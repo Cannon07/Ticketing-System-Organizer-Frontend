@@ -12,6 +12,11 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
+import { CONTRACT_ADDRESS } from '@/constants/contractAddress';
+import metadata from '@/constants/TicketingSystem.json';
+import { useContract, useTx } from 'useink';
+import { useTxNotifications } from 'useink/notifications';
+import { generateHash } from '@/lib/utils/hashGenerator';
 
 const UpdateEventForm = () => {
 
@@ -19,14 +24,23 @@ const UpdateEventForm = () => {
     const { hasAccount } = useGlobalContext();
     const registered = true;
 
+    
+    if (!registered) {
+        router.push('/register-organizer');
+    }
+
+    if (!hasAccount) return <NotConnected />
+
+  
+
+    const contract = useContract(CONTRACT_ADDRESS || '',metadata);
+
+    const updateEvents = useTx(contract,'updateEvents');
+    useTxNotifications(updateEvents);
+
     const [eventTitle, setEventTitle] = useState("Lorem ipsum dolor sit amet consectetur")
-
     const [eventDateTime, setEventDateTime] = useState("2024-01-30T02:30");
-
     const [eventDuration, setEventDuration] = useState("02:00");
-
-
-
     const [aboutEvent, setAboutEvent] = useState("Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat, dolorem inventore! Minus totam assumenda alias cupiditate modi voluptatibus accusamus est sed, nam, quos consequatur pariatur sequi, tempora iste ut vero quidem similique.");
 
 
@@ -133,20 +147,30 @@ const UpdateEventForm = () => {
         setSelectedCategory(originalSelectedCategory);
         router.push('/organizer-profile')
     };
+    
 
 
+    const previousHash = generateHash([originalEventTitle,originalEventDateTime,originalEventDuration,originalAboutEvent,[...originalTiers],[...originalSelectedArtists],originalSelectedVenue,originalSelectedCategory])
+
+    const newHash = generateHash([eventTitle,eventDateTime,eventDuration,aboutEvent,[...tiers],[...selectedArtists],selectedVenue,selectedCategory])
 
 
+    const handleUpdateEvent=(e:any)=>{
+        e.preventDefault();
+        updateEvents.signAndSend(['13c37b66d8f432cb39fd11f5773347918b6ef908a1fb1ea20bc63d643225546b',newHash]);
 
-
-    if (!registered) {
-        router.push('/register-organizer');
     }
 
-    if (!hasAccount) return <NotConnected />
+
+
+
+
+
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
+            <p>{previousHash}</p>
+            <p>{newHash}</p>
             <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
                 <div className="mb-4">
                     <label htmlFor="title" className="form-label block">
@@ -313,10 +337,8 @@ const UpdateEventForm = () => {
                     />
                 </div>
 
-
-
                 <div className="col-span-2 flex gap-4 pl-1">
-                    <button type="submit" className="btn btn-primary">
+                    <button onClick={handleUpdateEvent} type="submit" className="btn btn-primary">
                         Update Event
                     </button>
                     <button onClick={handleCancelClick} className="btn btn-primary">

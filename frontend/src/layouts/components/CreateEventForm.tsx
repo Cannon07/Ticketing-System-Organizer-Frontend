@@ -12,10 +12,11 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { handleClientScriptLoad } from 'next/script';
 import { useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
-
+import metadata from '../../constants/TicketingSystem.json';
+import { CONTRACT_ADDRESS } from '../../constants/contractAddress';
+import { generateHash } from '@/lib/utils/hashGenerator';
 
 
 const CreateEventForm = () => {
@@ -23,10 +24,34 @@ const CreateEventForm = () => {
     const router = useRouter();
     const { hasAccount } = useGlobalContext();
     const registered = true;
-    const [tiers, setTiers] = useState<String[]>([])
+
+    if (!registered) {
+      router.push('/register-organizer');
+    }
+
+  if (!hasAccount) return <NotConnected />
+
+
+  
+
+    const contract = useContract(CONTRACT_ADDRESS || '',metadata);
+
+    const registerEvent = useTx(contract,'registerEvent');
+    useTxNotifications(registerEvent);
+
+
+
+    const [eventTitle, setEventTitle] = useState('');
+    const [eventDateTime, setEventDateTime] = useState('');
+    const [eventDuration, setEventDuration] = useState('');
+    const [aboutEvent, setAboutEvent] = useState('');
+
+
+    const [tiers, setTiers] = useState<String[]>([]);
+
     const [selectedArtists, setSelectedArtists] = useState<String[]>([]);
-    const [selectedVenue, setSelectedVenue] = useState<String>("");
-    const [selectedCategory, setSelectedCategory] = useState<String>("");
+    const [selectedVenue, setSelectedVenue] = useState<String>('');
+    const [selectedCategory, setSelectedCategory] = useState<String>('');
 
     const [venueNames, setVenueNames] = useState<String[]>(
       [
@@ -89,34 +114,32 @@ const CreateEventForm = () => {
         'Tessa'
     ])
 
+    const hashData = generateHash([eventTitle,eventDateTime,eventDuration,aboutEvent,[...tiers],[...selectedArtists],selectedVenue,selectedCategory])
 
 
+    const handleCancelClick=(e:any)=>{
+      e.preventDefault();
 
-    if (!registered) {
-        router.push('/register-organizer');
+
     }
-
-    if (!hasAccount) return <NotConnected />
-
-
-    // const contract = useContract(main_contract_address,metadata);
-
-    // const registerEvent = useTx(contract,'registerEvent');
-    // useTxNotifications(registerEvent);
-    
-
-
-
 
     const handleCreateEvent=(e:any)=> {
         e.preventDefault();
-        // registerEvent.signAndSend([hash]);
+        registerEvent.signAndSend([hashData]);
 
     }
+
+    
+    function handleDateTimeChange(ev: any) {
+      if (!ev.target['validity'].valid) return;
+      const dt = ev.target['value'] + ':00Z';
+      setEventDateTime(dt);
+  }
 
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
+          <p>{hashData}</p>
             <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
                 <div className="mb-4">
                     <label htmlFor="title" className="form-label block">
@@ -128,6 +151,8 @@ const CreateEventForm = () => {
                         className="form-input"
                         placeholder="Enter the title of the event.."
                         type="text"
+                        value={eventTitle}
+                        onChange={(e)=>setEventTitle(e.target.value)}
                         required
                     />
                 </div>
@@ -143,6 +168,8 @@ const CreateEventForm = () => {
                         name="datetimelocal"
                         className="form-input dark:dark-date"
                         type="datetime-local"
+                        value={(eventDateTime || '').toString().substring(0, 16)}
+                        onChange={handleDateTimeChange}
                         required
                     />
                 </div>
@@ -173,6 +200,8 @@ const CreateEventForm = () => {
                         name="duration"
                         className="form-input dark:dark-date"
                         type="time"
+                        value={eventDuration}
+                        onChange={(e)=>setEventDuration(e.target.value)}
                         required
                     />
                 </div>
@@ -265,6 +294,8 @@ const CreateEventForm = () => {
                         name="about"
                         className="form-input w-full min-h-48"
                         placeholder="Provide details about the event.."
+                        value={aboutEvent}
+                        onChange={(e)=>setAboutEvent(e.target.value)}
                         required
                     ></textarea>
                 </div>
@@ -282,11 +313,16 @@ const CreateEventForm = () => {
                 </div>
 
 
-                <div className="col-span-2 pl-1">
+                <div className="col-span-2 flex gap-4 pl-1">
                     <button onClick={handleCreateEvent} type="submit" className="btn btn-primary">
-                        Create Event
+                      Create Event
+                    </button>
+                    <button onClick={handleCancelClick} className="btn btn-primary">
+                        Cancel
                     </button>
                 </div>
+
+
             </div>
         </div>
     )

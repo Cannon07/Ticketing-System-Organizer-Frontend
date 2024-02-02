@@ -3,23 +3,68 @@
 import React, { useState } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
 import NotConnected from '@/app/not-connected';
+import { useContract, useTx } from 'useink';
+import { useTxNotifications } from 'useink/notifications';
+import { CONTRACT_ADDRESS } from '@/constants/contractAddress';
+import metadata from  '../../constants/TicketingSystem.json';
+import { generateHash } from '@/lib/utils/hashGenerator';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+
+
+
 
 
 
 const OrganizerRegistrationForm = () => {
 
 
-    const [aadharNumber, setAadharNumber] = useState('');
+
+
     // const [aadharError, setAadharError] = useState(false);
+    const router = useRouter()
     const { walletAddress, hasAccount } = useGlobalContext();
 
 
     if (!hasAccount) return <NotConnected />
 
+    
+    const contract = useContract(CONTRACT_ADDRESS, metadata);
+
+    const registerOrganizer = useTx(contract, 'registerOrganizer');
+    useTxNotifications(registerOrganizer);
+
+
+    const [fullName,setFullName] = useState<string>('');
+    const [username,setUsername] = useState<string>('')
+    const [email,setEmail] = useState<string>('');
+    const [organizationName,setOrganizationName] = useState<string>('');
+    const [aadharNumber,setAadharNumber] = useState<string>('');
+
+
+
+
+
+
+    const dataHash = generateHash([walletAddress,fullName,username,email,organizationName,aadharNumber]);
+
+
+    const handleCancelClick=(e:any)=>{
+        e.preventDefault();
+      
+    }
+
+    
+
+    const handleSubmit=async(e:any)=>{
+        e.preventDefault();
+        registerOrganizer.signAndSend([dataHash]);
+        router.push('/organizer-profile');
+    }
+
 
 
     const handleAadharChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.preventDefault()
 
         event.target.value=event.target.value.replace(/\D/g, '');
         if(event.target.value.length>12){
@@ -31,8 +76,9 @@ const OrganizerRegistrationForm = () => {
 
 
     };
-    //
+ 
     return (
+
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
             <form className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8" method="POST">
                 <div className="mb-4">
@@ -60,6 +106,8 @@ const OrganizerRegistrationForm = () => {
                         className="form-input"
                         placeholder="Enter your full name.."
                         type="text"
+                        value={fullName}
+                        onChange={(e)=>setFullName(e.target.value)}
                         required
                     />
                 </div>
@@ -74,6 +122,8 @@ const OrganizerRegistrationForm = () => {
                         className="form-input"
                         placeholder="Enter your username.."
                         type="text"
+                        value={username}
+                        onChange={(e)=>setUsername(e.target.value)}
                         required
                     />
                 </div>
@@ -88,6 +138,8 @@ const OrganizerRegistrationForm = () => {
                         className="form-input w-full"
                         placeholder='Enter your email..'
                         type="text"
+                        value={email}
+                        onChange={(e)=>setEmail(e.target.value)}
                         required
                     />
                 </div>
@@ -102,6 +154,8 @@ const OrganizerRegistrationForm = () => {
                         className="form-input"
                         placeholder="Enter your organization name.."
                         type="text"
+                        value={organizationName}
+                        onChange={(e)=>setOrganizationName(e.target.value)}
                     />
                 </div>
 
@@ -121,11 +175,15 @@ const OrganizerRegistrationForm = () => {
                     />
                 </div>
 
-                <div className="col-span-2 pl-1">
-                    <button type="submit" className="btn btn-primary">
+                <div className="col-span-2 flex gap-4 pl-1">
+                    <button onClick={handleSubmit} type="submit" className="btn btn-primary">
                         Submit
                     </button>
+                    <button onClick={handleCancelClick} className="btn btn-primary">
+                        Cancel
+                    </button>
                 </div>
+
             </form>
         </div>
 
