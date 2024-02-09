@@ -12,8 +12,8 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { CONTRACT_ADDRESS } from '@/constants/contractAddress';
-import metadata from '@/constants/TicketingSystem.json';
+import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
+import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import { useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import { generateHash } from '@/lib/utils/hashGenerator';
@@ -23,10 +23,6 @@ const UpdateEventForm = () => {
     const router = useRouter();
     const { hasAccount } = useGlobalContext();
     const registered = true;
-
-    
-
-
   
 
     const contract = useContract(CONTRACT_ADDRESS || '',metadata);
@@ -41,6 +37,7 @@ const UpdateEventForm = () => {
 
 
     const [tiers, setTiers] = useState<String[]>(["Primary", "Secondary", "Tertiary"]);
+    const [tiersCapacity,setTiersCapacity] = useState<number[]>([2,3,50]);
 
     const [selectedArtists, setSelectedArtists] = useState<String[]>(["Alice", "Bob", "Charlie"]);
     const [selectedVenue, setSelectedVenue] = useState<String>("Grand Horizon Plaza");
@@ -207,8 +204,6 @@ const UpdateEventForm = () => {
                 </div>
 
 
-
-
                 <div className="mb-4">
                     <div className='flex flex-col gap-4'>
                         <SelectCategoryDropdown
@@ -258,6 +253,8 @@ const UpdateEventForm = () => {
                     <AddNewTierModal
                         tiers={tiers}
                         setTiers={setTiers}
+                        tiersCapacity={tiersCapacity}
+                        setTiersCapacity={setTiersCapacity}
                     />
                     <div className='flex flex-col'>
                         <label className='form-label block'>

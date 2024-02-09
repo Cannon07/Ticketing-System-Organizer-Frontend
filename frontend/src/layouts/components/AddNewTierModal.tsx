@@ -5,11 +5,14 @@ import React, { useState, useEffect } from "react";
 interface ArtistProps {
   tiers: String[];
   setTiers: React.Dispatch<React.SetStateAction<String[]>>;
+  tiersCapacity: number[];
+  setTiersCapacity: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers }) => {
+const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers, tiersCapacity, setTiersCapacity }) => {
   const [file, setFile] = useState<File | null>(null);
   const [newTier, setNewTier] = useState("");
+  const [newCapacity,setNewCapacity] = useState<number>(0);
 
   const addTierModal = document.getElementById("addTierModal");
 
@@ -68,6 +71,8 @@ const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers }) => {
                           className="form-input w-full"
                           placeholder="Enter tier capacity"
                           type="number"
+                          value={newCapacity}
+                          onChange={(e)=>setNewCapacity(e.target.valueAsNumber)}
                           required
                       />
                   </div>
@@ -96,10 +101,14 @@ const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers }) => {
               className={"btn btn-primary w-full"}
               onClick={() => {
                 setNewTier("");
+                setNewCapacity(0);
                 if (newTier.length > 0) {
                   setTiers([...tiers, newTier]);
-                  addTierModal!.classList.remove("show");
                 }
+                if(newCapacity!=0){
+                  setTiersCapacity([...tiersCapacity,newCapacity])
+                }
+                addTierModal!.classList.remove("show");
               }}
             >
               <h5 className={"text-white dark:text-dark flex justify-center"}>Add Tier</h5>

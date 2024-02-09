@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import ImageFallback from '@/helpers/ImageFallback';
 import { generateHash } from '@/lib/utils/hashGenerator';
 import { useContract, useTx } from 'useink';
-import { CONTRACT_ADDRESS } from '@/constants/contractAddress';
-import metadata from '@/constants/TicketingSystem.json';
+import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
+import metadata from  '@/constants/contract_constants/assets/TicketingSystem.json';
 import { useTxNotifications } from 'useink/notifications';
 
 

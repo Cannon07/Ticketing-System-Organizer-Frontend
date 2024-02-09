@@ -14,9 +14,13 @@ import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
 import { useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
-import metadata from '../../constants/TicketingSystem.json';
-import { CONTRACT_ADDRESS } from '../../constants/contractAddress';
+import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
+import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import { generateHash } from '@/lib/utils/hashGenerator';
+import { useCodeHash } from 'useink';
+import { Hash } from 'crypto';
+// import CodeHash from '@/constants/contract_constants/CodeHash';
+
 
 
 const CreateEventForm = () => {
@@ -27,10 +31,15 @@ const CreateEventForm = () => {
 
 
 
+    // const C = useCodeHash();
 
-  
+    const contract = useContract(CONTRACT_ADDRESS,metadata);
+    // C.set('1f0285bb4fefffd860fd42bfdc237df1a7906a820725e5cc3256c208c5837d12');
+   
+    
 
-    const contract = useContract(CONTRACT_ADDRESS || '',metadata);
+    const ticketsCodeHash = '1f0285bb4fefffd860fd42bfdc237df1a7906a820725e5cc3256c208c5837d12';
+    
 
     const registerEvent = useTx(contract,'registerEvent');
     useTxNotifications(registerEvent);
@@ -44,6 +53,7 @@ const CreateEventForm = () => {
 
 
     const [tiers, setTiers] = useState<String[]>([]);
+    const [tiersCapacity,setTiersCapacity] = useState<number[]>([])
 
     const [selectedArtists, setSelectedArtists] = useState<String[]>([]);
     const [selectedVenue, setSelectedVenue] = useState<String>('');
@@ -126,10 +136,13 @@ const CreateEventForm = () => {
 
     }
 
+    const arr=[2,3,4]
+
+
+
     const handleCreateEvent=(e:any)=> {
         e.preventDefault();
-        registerEvent.signAndSend([hashData]);
-
+        registerEvent.signAndSend([hashData,tiers,tiersCapacity]);
     }
 
     
@@ -142,7 +155,6 @@ const CreateEventForm = () => {
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
-          <p>{hashData}</p>
             <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
                 <div className="mb-4">
                     <label htmlFor="title" className="form-label block">
@@ -233,6 +245,8 @@ const CreateEventForm = () => {
                     <AddNewTierModal
                       tiers={tiers}
                       setTiers={setTiers}
+                      tiersCapacity={tiersCapacity}
+                      setTiersCapacity={setTiersCapacity}
                     />
                     <div className='flex flex-col'>
                       <label className='form-label block'>
