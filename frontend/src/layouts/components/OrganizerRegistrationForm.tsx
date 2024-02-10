@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
 import NotConnected from '@/app/not-connected';
 import { useContract, useTx } from 'useink';
@@ -34,6 +34,29 @@ const OrganizerRegistrationForm = () => {
     useTxNotifications(registerOrganizer);
 
 
+    useEffect(()=>{
+        if(registerOrganizer.status === 'Finalized'){
+          toast.dismiss()
+          toast.success('Transaction finalized!')
+          router.push('/organizer-profile');
+        }
+        else if(registerOrganizer.status === 'PendingSignature'){
+          toast.dismiss()
+          toast.loading('Pending signature..')
+        }
+        else if(registerOrganizer.status === 'Broadcast'){
+          toast.dismiss()
+          toast.loading('Broadcasting transaction..')
+        }
+        else if(registerOrganizer.status === 'InBlock'){
+          toast.dismiss()
+          toast.loading('Transaction In Block..')
+        }
+      }
+      ,[registerOrganizer.status])
+  
+
+
     const [fullName,setFullName] = useState<string>('');
     const [username,setUsername] = useState<string>('')
     const [email,setEmail] = useState<string>('');
@@ -62,7 +85,6 @@ const OrganizerRegistrationForm = () => {
     const handleSubmit=async(e:any)=>{
         e.preventDefault();
         registerOrganizer.signAndSend([dataHash]);
-        router.push('/organizer-profile');
     }
 
 

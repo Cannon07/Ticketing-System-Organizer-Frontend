@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { useInstalledWallets, useUninstalledWallets, useWallet } from 'useink';
 import { useGlobalContext } from "@/app/context/globalContext";
-// import { GetUserByWalletId } from "@/constants/UserEndpoints";
+
 
 export interface WalletList {
   name: string;
@@ -23,8 +23,7 @@ export const ConnectWallet = () => {
   const installedWallets = useInstalledWallets();
   const uninstalledWallets = useUninstalledWallets();
   const {setHasAccount, setWalletAddress} = useGlobalContext();
-  // const registerModal = document.getElementById("registerModal");
-  //const {currentAccount, setCurrentAccount} = useState<AccountList>();
+
 
   const installedWalletsData: WalletList[] = installedWallets.map(({title, extensionName, installUrl}) => ({
     name: title,
@@ -46,13 +45,7 @@ export const ConnectWallet = () => {
 
 
   useEffect (() => {
-    // const fetchUser = async () => {
-    //   const response = await fetch(`${GetUserByWalletId}${account?.address}`);
-      // if (await response.text() === "") {
-      //   registerModal!.classList.add("show");
-      // }
-    // }
-
+ 
     if (account) {
       currentAccount = {
         name: account?.name,
@@ -61,7 +54,7 @@ export const ConnectWallet = () => {
         active: true,
       }
 
-      // fetchUser();
+     
 
     }
 

@@ -1,42 +1,44 @@
 ---
 # Banner
 banner:
-  title: "The Ultimate Starter Template You Need To Start Your Next Project"
-  content: "Nextplate is a free starter template built with Next and TailwindCSS, providing everything you need to jumpstart your Next project and save valuable time."
-  image: "/images/banner.png"
+  title: "Ready to revolutionize your event management?"
+  content: "Make event planning secure with our solution. Experience seamless management of events with polkadot blockchain and NFT powered platform!"
+  image: "/images/standup-meeting.png"
   button:
     enable: true
-    label: "Get Started For Free"
-    link: "https://github.com/zeon-studio/nextplate"
+    label: "Get Started Now"
+    link: "/create-event"
 
 # Features
 features:
-  - title: "What's Included in Nextplate"
-    image: "/images/service-1.png"
-    content: "Nextplate is a comprehensive starter template that includes everything you need to get started with your Next project. What's Included in Nextplate"
+  - title: "Key Features of Nextplate"
+    image: "/images/search.png"
+    content: ""
     bulletpoints:
-      - "10+ Pre-build pages"
-      - "95+ Google Pagespeed Score"
-      - "Build with Next and TailwindCSS for easy and customizable styling"
-      - "Fully responsive on all devices"
-      - "SEO-optimized for better search engine rankings"
-      - "**Open-source and free** for personal and commercial use"
+      - "Seamless event creation with customizable details."
+      - "Integration of Polkadot blockchain for NFT ticket management."
+      - "Self-sovereign identity verification for organizers."
+      - "Comprehensive event analytics dashboard for insights."
+      - "Enhanced security ensured by the decentralized nature of Polkadot blockchain."
+
     button:
       enable: false
       label: "Get Started Now"
-      link: "#"
+      link: "/create-event"
 
-  - title: "Discover the Key Features Of Next"
-    image: "/images/service-2.png"
-    content: "Next is an all-in-one web framework for building fast, content-focused websites. It offers a range of exciting features for developers and website creators. Some of the key features are:"
+  - title: "Working of Nextplate as Organizer"
+    image: "/images/connecting-teams.png"
+    content: ""
     bulletpoints:
-      - "Zero JS, by default: No JavaScript runtime overhead to slow you down."
-      - "Customizable: Tailwind, MDX, and 100+ other integrations to choose from."
-      - "UI-agnostic: Supports React, Preact, Svelte, Vue, Solid, Lit and more."
+      - "Organizers will visit the website and register for an account by providing necessary information such as name, email,password and adhar number."
+      - "Optionally, they may undergo a self-sovereign identity verification process to establish credibility and trust within the platform."
+      - "Once register, organizers can navigate to their dashboard or a designated section for event management."
+      - "They will have the option to create a new event by providing details such as event name, date, time, location, description,event category,images and any other relevant information"
+      - "Organizers will have access to a ticket management interface where they can view and manage all tickets associated with their events."
     button:
       enable: true
       label: "Get Started Now"
-      link: "https://github.com/zeon-studio/nextplate"
+      link: "/create-event"
 
 #  - title: "The Top Reasons to Choose Next for Your Next Project"
 #    image: "/images/service-3.png"

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
 import NotConnected from '@/app/not-connected';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,7 @@ import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress
 import { generateHash } from '@/lib/utils/hashGenerator';
 import { useCodeHash } from 'useink';
 import { Hash } from 'crypto';
+import toast from 'react-hot-toast';
 // import CodeHash from '@/constants/contract_constants/CodeHash';
 
 
@@ -31,18 +32,36 @@ const CreateEventForm = () => {
 
 
 
-    // const C = useCodeHash();
 
     const contract = useContract(CONTRACT_ADDRESS,metadata);
-    // C.set('1f0285bb4fefffd860fd42bfdc237df1a7906a820725e5cc3256c208c5837d12');
-   
-    
 
-    const ticketsCodeHash = '1f0285bb4fefffd860fd42bfdc237df1a7906a820725e5cc3256c208c5837d12';
     
 
     const registerEvent = useTx(contract,'registerEvent');
     useTxNotifications(registerEvent);
+
+
+    useEffect(()=>{
+      if(registerEvent.status === 'Finalized'){
+        toast.dismiss()
+        toast.success('Transaction finalized!')
+      }
+      else if(registerEvent.status === 'PendingSignature'){
+        toast.dismiss()
+        toast.loading('Pending signature..')
+      }
+      else if(registerEvent.status === 'Broadcast'){
+        toast.dismiss()
+        toast.loading('Broadcasting transaction..')
+      }
+      else if(registerEvent.status === 'InBlock'){
+        toast.dismiss()
+        toast.loading('Transaction In Block..')
+      }
+    }
+    ,[registerEvent.status])
+
+
 
 
 
@@ -135,9 +154,6 @@ const CreateEventForm = () => {
 
 
     }
-
-    const arr=[2,3,4]
-
 
 
     const handleCreateEvent=(e:any)=> {

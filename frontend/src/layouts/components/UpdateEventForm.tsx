@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
 import NotConnected from '@/app/not-connected';
 import { useRouter } from 'next/navigation';
@@ -17,6 +17,7 @@ import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress
 import { useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import { generateHash } from '@/lib/utils/hashGenerator';
+import toast from 'react-hot-toast';
 
 const UpdateEventForm = () => {
 
@@ -29,6 +30,26 @@ const UpdateEventForm = () => {
 
     const updateEvents = useTx(contract,'updateEvents');
     useTxNotifications(updateEvents);
+
+    useEffect(()=>{
+        if(updateEvents.status === 'Finalized'){
+          toast.dismiss()
+          toast.success('Transaction finalized!')
+        }
+        else if(updateEvents.status === 'PendingSignature'){
+          toast.dismiss()
+          toast.loading('Pending signature..')
+        }
+        else if(updateEvents.status === 'Broadcast'){
+          toast.dismiss()
+          toast.loading('Broadcasting transaction..')
+        }
+        else if(updateEvents.status === 'InBlock'){
+          toast.dismiss()
+          toast.loading('Transaction In Block..')
+        }
+      }
+      ,[updateEvents.status])
 
     const [eventTitle, setEventTitle] = useState("Lorem ipsum dolor sit amet consectetur")
     const [eventDateTime, setEventDateTime] = useState("2024-01-30T02:30");
@@ -156,20 +177,13 @@ const UpdateEventForm = () => {
 
     const handleUpdateEvent=(e:any)=>{
         e.preventDefault();
-        updateEvents.signAndSend(['13c37b66d8f432cb39fd11f5773347918b6ef908a1fb1ea20bc63d643225546b',newHash]);
+        updateEvents.signAndSend(['ce6c336e5414fde930302a5933c057aa45d82e4019049e4fc69d763693b62390',newHash]);
 
     }
 
 
-
-
-
-
-
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
-            <p>{previousHash}</p>
-            <p>{newHash}</p>
             <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
                 <div className="mb-4">
                     <label htmlFor="title" className="form-label block">
