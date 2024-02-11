@@ -52,6 +52,9 @@ const OrganizerRegistrationForm = () => {
           toast.dismiss()
           toast.loading('Transaction In Block..')
         }
+        else{
+            toast.dismiss();
+        }
       }
       ,[registerOrganizer.status])
   

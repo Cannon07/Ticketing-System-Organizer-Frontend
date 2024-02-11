@@ -1,12 +1,15 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ImageFallback from '@/helpers/ImageFallback';
 import { generateHash } from '@/lib/utils/hashGenerator';
 import { useContract, useTx } from 'useink';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import metadata from  '@/constants/contract_constants/assets/TicketingSystem.json';
 import { useTxNotifications } from 'useink/notifications';
+import toast from 'react-hot-toast';
+
+
 
 
 const OrganizerProfileSettings = () => {
@@ -14,6 +17,31 @@ const OrganizerProfileSettings = () => {
     const contract = useContract(CONTRACT_ADDRESS,metadata);
     const updateOrganizer = useTx(contract,'updateOrganizer');
     useTxNotifications(updateOrganizer);
+
+
+    useEffect(()=>{
+        if(updateOrganizer.status === 'Finalized'){
+          toast.dismiss()
+          toast.success('Transaction finalized!')
+          setIsEditing(false);
+        }
+        else if(updateOrganizer.status === 'PendingSignature'){
+          toast.dismiss()
+          toast.loading('Pending signature..')
+        }
+        else if(updateOrganizer.status === 'Broadcast'){
+          toast.dismiss()
+          toast.loading('Broadcasting transaction..')
+        }
+        else if(updateOrganizer.status === 'InBlock'){
+          toast.dismiss()
+          toast.loading('Transaction In Block..')
+        }
+        else{
+            toast.dismiss();
+        }
+      }
+      ,[updateOrganizer.status])
 
 
     const [isEditing, setIsEditing] = useState(false);
@@ -44,7 +72,6 @@ const OrganizerProfileSettings = () => {
         e.preventDefault();
         const hashData = generateHash([name,username,email,identity,profilePic]);
         setFileName('');
-        setIsEditing(false);
         updateOrganizer.signAndSend([hashData]);
     };
 
@@ -69,7 +96,6 @@ const OrganizerProfileSettings = () => {
             <div className="bg-theme-light dark:bg-darkmode-theme-light overflow-hidden shadow rounded-lg h-full w-full flex items-center justify-center">
                 <div className="p-8 rounded shadow-md w-full">
                     <h1 className="text-2xl font-semibold mb-4 text-center">Profile Settings</h1>
-                    {/* <p>{generateHash(jsonData)}</p> */}
                     <form>
                         <div className={`mb-4 ${isEditing ? '' : 'flex items-center justify-center'}`}>
 

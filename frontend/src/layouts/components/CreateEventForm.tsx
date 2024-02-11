@@ -12,15 +12,14 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { useContract, useTx } from 'useink';
+import { useCall, useCallSubscription, useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import { generateHash } from '@/lib/utils/hashGenerator';
-import { useCodeHash } from 'useink';
-import { Hash } from 'crypto';
 import toast from 'react-hot-toast';
-// import CodeHash from '@/constants/contract_constants/CodeHash';
+import { useWallet } from 'useink';
+
 
 
 
@@ -30,6 +29,7 @@ const CreateEventForm = () => {
     const { hasAccount } = useGlobalContext();
     const registered = true;
 
+    const {account} = useWallet();
 
 
 
@@ -40,6 +40,8 @@ const CreateEventForm = () => {
     const registerEvent = useTx(contract,'registerEvent');
     useTxNotifications(registerEvent);
 
+
+   
 
     useEffect(()=>{
       if(registerEvent.status === 'Finalized'){
@@ -57,6 +59,9 @@ const CreateEventForm = () => {
       else if(registerEvent.status === 'InBlock'){
         toast.dismiss()
         toast.loading('Transaction In Block..')
+      }
+      else{
+        toast.dismiss()
       }
     }
     ,[registerEvent.status])
@@ -151,14 +156,15 @@ const CreateEventForm = () => {
 
     const handleCancelClick=(e:any)=>{
       e.preventDefault();
-
-
     }
 
-
+    
     const handleCreateEvent=(e:any)=> {
         e.preventDefault();
+        
         registerEvent.signAndSend([hashData,tiers,tiersCapacity]);
+          
+        
     }
 
     

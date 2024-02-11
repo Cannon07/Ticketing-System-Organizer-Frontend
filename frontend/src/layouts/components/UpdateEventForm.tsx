@@ -31,6 +31,8 @@ const UpdateEventForm = () => {
     const updateEvents = useTx(contract,'updateEvents');
     useTxNotifications(updateEvents);
 
+    
+
     useEffect(()=>{
         if(updateEvents.status === 'Finalized'){
           toast.dismiss()
@@ -47,6 +49,9 @@ const UpdateEventForm = () => {
         else if(updateEvents.status === 'InBlock'){
           toast.dismiss()
           toast.loading('Transaction In Block..')
+        }
+        else{
+            toast.dismiss();
         }
       }
       ,[updateEvents.status])
