@@ -12,359 +12,626 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { useCall, useCallSubscription, useContract, useTx } from 'useink';
+import { useContract, useTx } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import { generateHash } from '@/lib/utils/hashGenerator';
 import toast from 'react-hot-toast';
 import { useWallet } from 'useink';
+import { SelectCityDropdown } from './SelectCityDropdown';
+import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
+import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
+import { PostImage } from '@/constants/endpoints/ImageEndpoints';
+import { PostEvent } from '@/constants/endpoints/EventEndpoints';
+import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
 
 
 
+
+interface venueInterface {
+  address: string,
+  capacity: number,
+  id: string,
+  name: string,
+  placeId: string,
+}
+
+
+interface tierInterface {
+  name: string,
+  capacity: number,
+  price: number,
+}
+
+
+interface artistInterface {
+  id: string,
+  name: string,
+  userName: string,
+  email: string,
+  govId: string,
+}
+
+interface selectedArtistsI {
+  id: string,
+  name: string,
+}
+
+
+interface cityInterface {
+  id: string,
+  city: string,
+}
+
+
+interface selectedVenueI {
+  id: string,
+  name: string,
+}
 
 const CreateEventForm = () => {
 
-    const router = useRouter();
-    const { hasAccount } = useGlobalContext();
-    const registered = true;
-
-    const {account} = useWallet();
+  const router = useRouter();
+  const { hasAccount } = useGlobalContext();
+  const registered = true;
 
 
-
-    const contract = useContract(CONTRACT_ADDRESS,metadata);
-
-    
-
-    const registerEvent = useTx(contract,'registerEvent');
-    useTxNotifications(registerEvent);
+  const contract = useContract(CONTRACT_ADDRESS, metadata);
 
 
-   
 
-    useEffect(()=>{
-      if(registerEvent.status === 'Finalized'){
-        toast.dismiss()
+  const registerEvent = useTx(contract, 'registerEvent');
+  useTxNotifications(registerEvent);
+
+
+
+  useEffect(() => {
+
+    if (registerEvent.status === 'Finalized') {
+      let txId = "";
+      console.log(registerEvent)
+      registerEvent.result?.contractEvents?.map((value) => {
+        txId=value.args[1][value.args[1].length-1].slice(0,64)
+        console.log(txId)
+      });
+      toast.dismiss()
+      if (txId === "") {
+        toast.error("Something went wrong!")
+      } else {
         toast.success('Transaction finalized!')
-      }
-      else if(registerEvent.status === 'PendingSignature'){
-        toast.dismiss()
-        toast.loading('Pending signature..')
-      }
-      else if(registerEvent.status === 'Broadcast'){
-        toast.dismiss()
-        toast.loading('Broadcasting transaction..')
-      }
-      else if(registerEvent.status === 'InBlock'){
-        toast.dismiss()
-        toast.loading('Transaction In Block..')
-      }
-      else{
-        toast.dismiss()
+        CreateEvent(txId);
       }
     }
-    ,[registerEvent.status])
-
-
-
-
-
-    const [eventTitle, setEventTitle] = useState('');
-    const [eventDateTime, setEventDateTime] = useState('');
-    const [eventDuration, setEventDuration] = useState('');
-    const [aboutEvent, setAboutEvent] = useState('');
-
-
-    const [tiers, setTiers] = useState<String[]>([]);
-    const [tiersCapacity,setTiersCapacity] = useState<number[]>([])
-
-    const [selectedArtists, setSelectedArtists] = useState<String[]>([]);
-    const [selectedVenue, setSelectedVenue] = useState<String>('');
-    const [selectedCategory, setSelectedCategory] = useState<String>('');
-
-    const [venueNames, setVenueNames] = useState<String[]>(
-      [
-        'Starlight Lounge',
-        'Moonlit Garden',
-        'Cityscape Ballroom',
-        'Harmony Hall',
-        'Sunset Terrace',
-        'Epic Event Space',
-        'Crystal Pavilion',
-        'Royal Oasis',
-        'Grand Horizon Plaza',
-        'Enchanting Courtyard',
-        'Sapphire Skyline Club',
-        'Majestic Manor',
-        'Celestial Gardens',
-        'Azure Amphitheater',
-        'Prestige Palace',
-        'Radiant Rooftop Lounge',
-        'Whispering Woods Pavilion',
-        'Golden Gate Banquet Hall',
-        'Charm City Chapel',
-        'Ethereal Elegance Hall'
-      ]
-    )
-    const [categoryNames, setCategoryNames] = useState<String[]>(
-      [
-        'Rock',
-        'Pop',
-        'Jazz',
-        'Classical',
-        'Hip-hop',
-        'Electronic/Dance',
-        'Country',
-        'R&B/Soul',
-        'Folk',
-        'Alternative'
-      ]
-    )
-    const [artistNames, setArtistNames] = useState<String[]>([
-        'Alice',
-        'Bob',
-        'Charlie',
-        'Diana',
-        'Eva',
-        'Frank',
-        'Grace',
-        'Henry',
-        'Ivy',
-        'Jack',
-        'Katherine',
-        'Leo',
-        'Mia',
-        'Nathan',
-        'Olivia',
-        'Peter',
-        'Quinn',
-        'Rachel',
-        'Samuel',
-        'Tessa'
-    ])
-
-
-    if (!registered) {
-      router.push('/register-organizer');
+    else if (registerEvent.status === 'PendingSignature') {
+      toast.dismiss()
+      toast.loading('Pending signature..')
     }
-
-  if (!hasAccount) return <NotConnected />
-
-    const hashData = generateHash([eventTitle,eventDateTime,eventDuration,aboutEvent,[...tiers],[...selectedArtists],selectedVenue,selectedCategory])
-
-
-    const handleCancelClick=(e:any)=>{
-      e.preventDefault();
+    else if (registerEvent.status === 'Broadcast') {
+      toast.dismiss()
+      toast.loading('Broadcasting transaction..')
     }
-
-    
-    const handleCreateEvent=(e:any)=> {
-        e.preventDefault();
-        
-        registerEvent.signAndSend([hashData,tiers,tiersCapacity]);
-          
-        
+    else if (registerEvent.status === 'InBlock') {
+      toast.dismiss()
+      toast.loading('Transaction In Block..')
     }
+    else {
+      toast.dismiss()
+    }
+  }, [registerEvent.status])
 
-    
-    function handleDateTimeChange(ev: any) {
-      if (!ev.target['validity'].valid) return;
-      const dt = ev.target['value'] + ':00Z';
-      setEventDateTime(dt);
+
+
+
+
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [eventTime, setEventTime] = useState('');
+  const [eventDuration, setEventDuration] = useState('');
+  const [aboutEvent, setAboutEvent] = useState('');
+
+
+  const [tiers, setTiers] = useState<tierInterface[]>([]);
+  const [citiesData, setCitiesData] = useState<cityInterface[]>([])
+
+  const [selectedArtists, setSelectedArtists] = useState<selectedArtistsI[]>([]);
+  const [selectedVenue, setSelectedVenue] = useState<selectedVenueI>();
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCity, setSelectedCity] = useState('');
+
+  const [venueData, setVenueData] = useState<venueInterface[]>([])
+  const [artistData, setArtistData] = useState<artistInterface[]>([])
+
+  const [file, setFile] = useState<File | undefined>();
+  const [filebg, setFilebg] = useState<File | undefined>();
+
+
+  const [categoryNames, setCategoryNames] = useState<string[]>(
+    [
+      'Rock',
+      'Pop',
+      'Jazz',
+      'Classical',
+      'Hip-hop',
+      'Electronic/Dance',
+      'Country',
+      'R&B/Soul',
+      'Folk',
+      'Alternative'
+    ]
+  )
+
+  useEffect(() => {
+
+    if (selectedCity !== '') {
+      getVenuesByCity();
+      setSelectedVenue(undefined)
+    }
+  }, [selectedCity])
+
+  useEffect(() => {
+    getPlaces();
+    getArtists();
+  }, [])
+
+
+
+  const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...tiers], [...selectedArtists], selectedVenue, selectedCategory, file,filebg])
+
+
+
+  const postImg = async (fileData: File | undefined) => {
+
+    if (typeof (fileData) === 'undefined') return;
+
+    var formdata = new FormData();
+    formdata.append("file", fileData);
+
+    var requestOptions = {
+      method: 'POST',
+      body: formdata,
+    };
+
+    let response = await fetch(`${PostImage}`, requestOptions);
+    let result = await response.text()
+
+    return result;
   }
 
 
-    return (
-        <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
-            <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
-                <div className="mb-4">
-                    <label htmlFor="title" className="form-label block">
-                        Event Title
-                    </label>
-                    <input
-                        id="title"
-                        name="title"
-                        className="form-input"
-                        placeholder="Enter the title of the event.."
-                        type="text"
-                        value={eventTitle}
-                        onChange={(e)=>setEventTitle(e.target.value)}
-                        required
-                    />
-                </div>
-                
+  const CreateEvent = async (txId:string) => {
 
-                <div className="mb-4">
-                    <label htmlFor="date" className="form-label block">
-                        Event Date and Time
-                    </label>
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-                    <input
-                        id="datetimelocal"
-                        name="datetimelocal"
-                        className="form-input dark:dark-date"
-                        type="datetime-local"
-                        value={(eventDateTime || '').toString().substring(0, 16)}
-                        onChange={handleDateTimeChange}
-                        required
-                    />
-                </div>
-
-                
-                <div className="mb-4">
-                    {/* <AddNewVenueModal
-                      venueNames={venueNames}
-                      setVenueNames={setVenueNames}
-                      setSelectedVenue={setSelectedVenue}
-                    /> */}
-                    <div className='flex flex-col gap-4'>
-                      <SelectCategoryDropdown
-                        categoryNames={categoryNames}
-                        selectedCategory={selectedCategory}
-                        setselectedCategory={setSelectedCategory}
-                      />
-                   
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="duration" className="form-label block">
-                        Event Duration (hh:mm)
-                    </label>
-                    <input
-                        id="duration"
-                        name="duration"
-                        className="form-input dark:dark-date"
-                        type="time"
-                        value={eventDuration}
-                        onChange={(e)=>setEventDuration(e.target.value)}
-                        required
-                    />
-                </div>
-
-                <div className="mb-4">
-                    <AddNewVenueModal
-                      venueNames={venueNames}
-                      setVenueNames={setVenueNames}
-                      setSelectedVenue={setSelectedVenue}
-                    />
-                    <div className='flex flex-col gap-4'>
-                      <SelectVenueDropdown
-                        venueNames={venueNames}
-                        selectedVenue={selectedVenue}
-                        setSelectedVenue={setSelectedVenue}
-                      />
-                      <button className='btn btn-primary' data-add-venue-trigger>
-                        Add new Venue
-                      </button>
-                    </div>
-                </div>
-                
+    var tiersArray: tierInterface[] = [];
+    tiers.forEach(function (tier) {
+      var tierObj = {
+        "name": tier.name,
+        "capacity": tier.capacity,
+        "price": tier.price
+      };
+      tiersArray.push(tierObj);
+    });
 
 
-                <div className="mb-4">
-                    <AddNewTierModal
-                      tiers={tiers}
-                      setTiers={setTiers}
-                      tiersCapacity={tiersCapacity}
-                      setTiersCapacity={setTiersCapacity}
-                    />
-                    <div className='flex flex-col'>
-                      <label className='form-label block'>
-                        Event Tiers
-                      </label>
+    var artistArray: string[] = []
+    selectedArtists?.map((artist) => (
+      artistArray.push(artist.id)
+    ))
 
-                      <div className={`flex flex-col gap-4`}>
-                        <div className={`flex flex-wrap gap-2 dark:border-gray-600 border-gray-300 border-2 rounded border-dashed min-h-[57px] p-1`}>
-                          {tiers.length > 0 ?
-                            tiers.map((tier, index) => {
-                              return(
-                                <div
-                                  key={index}
-                                  className='btn btn-outline-primary flex gap-4 justify-center items-center'
-                                  onClick={() => {
-                                    const newTiers = tiers?.filter((filterTier) => (filterTier !== tier))
-                                    setTiers(newTiers)
-                                  }}
-                                >
-                                  {tier}
-                                  <IoClose size={20} />
-                                </div>
-                              )
-                            })
-                          :
-                          <p className='w-full flex justify-center items-center'>No Tiers Selected</p>
-                          }
-                        </div>
-
-                        <button className='btn btn-primary' data-add-tier-trigger>
-                          Add Seat Tier
-                        </button>
-                      </div>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <AddNewArtistModal
-                      artistNames={artistNames}
-                      setArtistNames={setArtistNames}
-                      selectedArtists={selectedArtists}
-                      setSelectedArtists={setSelectedArtists}
-                    />
-                    <div className='flex flex-col gap-4'>
-                      <SelectArtistDropdown
-                        artistNames={artistNames}
-                        selectedArtists={selectedArtists}
-                        setSelectedArtists={setSelectedArtists}
-                      />
-                      <button className='btn btn-primary' data-add-artist-trigger>
-                        Add new Artist
-                      </button>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="about" className="form-label block">
-                        About the Event
-                    </label>
-                    <textarea
-                        id="about"
-                        name="about"
-                        className="form-input w-full min-h-48"
-                        placeholder="Provide details about the event.."
-                        value={aboutEvent}
-                        onChange={(e)=>setAboutEvent(e.target.value)}
-                        required
-                    ></textarea>
-                </div>
-
-                <div className='mb-4'>
-                  <ImageSelector
-                    title={"Primary Image"}
-                  />
-                </div>
-
-                <div className='mb-4'>
-                  <ImageSelector
-                    title={"Background Image"}
-                  />
-                </div>
+    let primaryImgPromise = postImg(file);
+    let bgImgPromise = postImg(filebg);
+    let [primaryImg, bgImg] = await Promise.all([primaryImgPromise, bgImgPromise]);
+    var images = [primaryImg, bgImg];
 
 
-                <div className="col-span-2 flex gap-4 pl-1">
-                    <button onClick={handleCreateEvent} type="submit" className="btn btn-primary">
-                      Create Event
-                    </button>
-                    <button onClick={handleCancelClick} className="btn btn-primary">
-                        Cancel
-                    </button>
-                </div>
-
-
-            </div>
-        </div>
+    let raw = JSON.stringify({
+      "event": {
+        "name": eventTitle,
+        "dateAndTime": getCurrentDateTimeFormatted(),
+        "description": aboutEvent,
+        "eventDuration": eventDuration,
+        "categoryList": [
+          selectedCategory
+        ],
+        "venueId": selectedVenue?.id,
+        "artistList": artistArray,
+        "tierList": tiersArray,
+        "transactionId": txId,
+      },
+      "imgUrls": images,
+    }
     )
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+    }
+
+    let response = await fetch(`${PostEvent}`, requestOptions);
+    let result = await response.json()
+
+    console.log(response)
+    console.log(result)
+
+    if (response.ok) {
+    
+      setEventTitle('')
+      setEventDate('')
+      setEventTime('')
+      setSelectedCategory('')
+      setEventDuration('')
+      setSelectedCity('')
+      setSelectedVenue(undefined)
+      setTiers([])
+      setSelectedArtists([])
+      setAboutEvent('')
+      setFile(undefined)
+      setFilebg(undefined)
+      toast.dismiss();
+      toast.success('Event created successfully!');
+    }
+    else {
+      toast.dismiss();
+      toast.error('Failed to create event', result.statusMsg)
+    }
+
+  }
+
+
+  const getVenuesByCity = async () => {
+    try {
+      const res = await fetch(`${GetVenuesByCity}${selectedCity}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch venues");
+      }
+
+      let result = await res.json()
+
+      setVenueData(result)
+
+      console.log(result);
+
+    } catch (error) {
+      console.log("Error loading venues: ", error);
+    }
+  }
+
+  const getArtists = async () => {
+    try {
+      const res = await fetch(`${GetArtists}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch artists");
+      }
+
+      let result = await res.json()
+
+      setArtistData(result);
+      console.log(result);
+
+    } catch (error) {
+      console.log("Error loading artists: ", error);
+    }
+  }
+
+
+  const getPlaces = async () => {
+    try {
+      const res = await fetch(`${GetAllPlaces}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch artists");
+      }
+
+      let result = await res.json()
+      setCitiesData(result);
+      console.log(result);
+
+    } catch (error) {
+      console.log("Error loading artists: ", error);
+    }
+  }
+
+
+
+
+  const formatAMPM = (date: Date) => {
+    let hours = date.getHours();
+    let minutes: any = date.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    const strTime = hours + ':' + minutes + ':00 ' + ampm;
+    return strTime;
+  };
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    let month: any = date.getMonth() + 1;
+    let day: any = date.getDate();
+
+    month = month < 10 ? '0' + month : month;
+    day = day < 10 ? '0' + day : day;
+
+    return year + '-' + month + '-' + day;
+  };
+
+  const getCurrentDateTimeFormatted = () => {
+    const currentDate = new Date(eventDate + 'T' + eventTime);
+    return formatDate(currentDate) + ' ' + formatAMPM(currentDate);
+  };
+
+
+
+
+
+  const handleCreateEvent = (e: any) => {
+    e.preventDefault();
+
+    if (eventTitle === '') {
+      toast.dismiss();
+      toast.error('Please enter event title');
+    } else if (eventDate === '') {
+      toast.dismiss();
+      toast.error('Please enter event date');
+    } else if (eventTime === '') {
+      toast.dismiss();
+      toast.error('Please enter event time');
+    } else if (selectedCategory === '') {
+      toast.dismiss();
+      toast.error('Please select category');
+    } else if (eventDuration === '') {
+      toast.dismiss();
+      toast.error('Please enter event duration');
+    } else if (selectedCity === '') {
+      toast.dismiss();
+      toast.error('Please select city');
+    } else if (selectedVenue === undefined) {
+      toast.dismiss();
+      toast.error('Please select venue');
+    } else if (tiers.length < 1) {
+      toast.dismiss();
+      toast.error('Please add tiers');
+    } else if (selectedArtists.length < 1) {
+      toast.dismiss();
+      toast.error('Please select artists');
+    } else if (aboutEvent === '') {
+      toast.dismiss();
+      toast.error('Please enter about the event');
+    } else if (file === undefined) {
+      toast.dismiss();
+      toast.error('Please upload primary image');
+    } else if (filebg === undefined) {
+      toast.dismiss();
+      toast.error('Please upload background image');
+    }
+    else {
+      var tiersList: string[] = [];
+      var tiersCapacity: number[] = []
+      tiers.forEach((tier) => {
+        tiersList.push(tier.name);
+        tiersCapacity.push(tier.capacity);
+      });
+      registerEvent.signAndSend([hashData, tiersList, tiersCapacity]);
+    }
+
+  }
+
+
+
+  if (!registered) {
+    router.push('/register-organizer');
+  }
+
+  if (!hasAccount) return <NotConnected />
+
+
+  return (
+    <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
+      <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
+        <div className="mb-4">
+          <label htmlFor="title" className="form-label block">
+            Event Title
+          </label>
+          <input
+            id="title"
+            name="title"
+            className="form-input"
+            placeholder="Enter the title of the event.."
+            type="text"
+            value={eventTitle}
+            onChange={(e) => setEventTitle(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="date" className="form-label block">
+            Event Date
+          </label>
+          <input
+            id="date"
+            name="date"
+            className="form-input dark:dark-date"
+            type="date"
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="date" className="form-label block">
+            Event Time
+          </label>
+          <input
+            id="time"
+            name="time"
+            className="form-input dark:dark-date"
+            type="time"
+            value={eventTime}
+            onChange={(e) => setEventTime(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <div className='flex flex-col gap-4'>
+            <SelectCategoryDropdown
+              categoryNames={categoryNames}
+              selectedCategory={selectedCategory}
+              setselectedCategory={setSelectedCategory}
+            />
+
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="duration" className="form-label block">
+            Event Duration (hh:mm)
+          </label>
+          <input
+            id="duration"
+            name="duration"
+            className="form-input dark:dark-date"
+            type="time"
+            value={eventDuration}
+            onChange={(e) => setEventDuration(e.target.value)}
+            required
+          />
+        </div>
+
+
+        <div className="mb-4">
+          <div className='flex flex-col gap-4'>
+            <SelectCityDropdown
+              citiesData={citiesData}
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+            />
+          </div>
+        </div>
+
+        <div className={`mb-4`}>
+          <AddNewVenueModal
+            venueData={venueData}
+            setVenueData={setVenueData}
+            setSelectedVenue={setSelectedVenue}
+            selectedCity={selectedCity}
+          />
+          <div className='flex flex-col gap-4'>
+            <SelectVenueDropdown
+              venueData={venueData}
+              selectedVenue={selectedVenue}
+              setSelectedVenue={setSelectedVenue}
+            />
+            <button className='btn btn-primary' data-add-venue-trigger>
+              Add new Venue
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <AddNewTierModal
+            tiers={tiers}
+            setTiers={setTiers}
+          />
+          <div className='flex flex-col'>
+            <label className='form-label block'>
+              Event Tiers
+            </label>
+
+            <div className={`flex flex-col gap-4`}>
+              <div className={`flex flex-wrap gap-2 dark:border-gray-600 border-gray-300 border-2 rounded border-dashed min-h-[57px] p-1`}>
+                {tiers.length > 0 ?
+                  tiers.map((tier, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className='btn btn-outline-primary flex gap-4 justify-center items-center'
+                        onClick={() => {
+                          const newTiers = tiers?.filter((filterTier) => (filterTier !== tier))
+                          setTiers(newTiers)
+                        }}
+                      >
+                        {tier.name}
+                        <IoClose size={20} />
+                      </div>
+                    )
+                  })
+                  :
+                  <p className='w-full flex justify-center items-center'>No Tiers Selected</p>
+                }
+              </div>
+
+              <button className='btn btn-primary' data-add-tier-trigger>
+                Add Seat Tier
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <AddNewArtistModal
+            artistData={artistData}
+            setArtistData={setArtistData}
+            selectedArtists={selectedArtists}
+            setSelectedArtists={setSelectedArtists}
+          />
+          <div className='flex flex-col gap-4'>
+            <SelectArtistDropdown
+              artistData={artistData}
+              selectedArtists={selectedArtists}
+              setSelectedArtists={setSelectedArtists}
+            />
+            <button className='btn btn-primary' data-add-artist-trigger>
+              Add new Artist
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="about" className="form-label block">
+            About the Event
+          </label>
+          <textarea
+            id="about"
+            name="about"
+            className="form-input w-full min-h-48"
+            placeholder="Provide details about the event.."
+            value={aboutEvent}
+            onChange={(e) => setAboutEvent(e.target.value)}
+            required
+          ></textarea>
+        </div>
+
+        <div className='mb-4'>
+          <ImageSelector
+            title={"Primary Image"}
+            file={file}
+            setFile={setFile}
+          />
+        </div>
+
+        <div className='mb-4'>
+          <ImageSelector
+            title={"Background Image"}
+            file={filebg}
+            setFile={setFilebg}
+          />
+        </div>
+
+        <div className="col-span-2 flex gap-4 pl-1">
+          <button onClick={handleCreateEvent} type="submit" className="btn btn-primary">
+            Create Event
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )
 
 }
 

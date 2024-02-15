@@ -10,8 +10,6 @@ import { useTxNotifications } from 'useink/notifications';
 import toast from 'react-hot-toast';
 
 
-
-
 const OrganizerProfileSettings = () => {
 
     const contract = useContract(CONTRACT_ADDRESS,metadata);

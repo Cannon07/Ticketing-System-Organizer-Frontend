@@ -1,15 +1,31 @@
 import React, { useState } from "react";
 import { FaAngleDown } from "react-icons/fa";
+import Loader from "./Loader";
 
-interface VenueDetails {
-  venueNames: String[];
-  selectedVenue: String;
-  setSelectedVenue: React.Dispatch<React.SetStateAction<String>>;
+
+interface venueInterface {
+
+  address: string,
+  capacity: number,
+  id: string,
+  name: string,
+  placeId: string,
+
 }
 
-export const SelectVenueDropdown: React.FC<VenueDetails> = ({ venueNames, selectedVenue, setSelectedVenue }) => {
+interface selectedVenueI {
+  id: string,
+  name: string,
+}
 
-  const [artists, setArtists] = useState(null)
+interface VenueDetails {
+  venueData: venueInterface[];
+  selectedVenue: selectedVenueI | undefined;
+  setSelectedVenue: React.Dispatch<React.SetStateAction<selectedVenueI | undefined>>;
+}
+
+export const SelectVenueDropdown: React.FC<VenueDetails> = ({ venueData, selectedVenue, setSelectedVenue }) => {
+
   const [inputValue, setInputValue] = useState("")
   const [open, setOpen] = useState(false);
 
@@ -22,8 +38,8 @@ export const SelectVenueDropdown: React.FC<VenueDetails> = ({ venueNames, select
         className="w-full form-input px-8 py-4 flex items-center justify-between rounded"
         onClick={() => setOpen(!open)}
       >
-        {selectedVenue === "" ? "Select the Venue" : selectedVenue}
-        <FaAngleDown className={`${open && "rotate-180"}`}/>
+        {selectedVenue === undefined ? "Select the Venue" : selectedVenue?.name}
+        <FaAngleDown className={`${open && "rotate-180"}`} />
       </div>
       <ul className={`absolute z-10 w-full mt-2 p-0 form-input overflow-y-auto ${open ? "max-h-60" : "hidden"}`}>
         <div className="sticky top-0">
@@ -35,16 +51,20 @@ export const SelectVenueDropdown: React.FC<VenueDetails> = ({ venueNames, select
             onChange={(e) => setInputValue(e.target.value.toLowerCase())}
           />
         </div>
-        {venueNames?.map((venue, index) => (
+        {venueData.length < 1 ? <div className="text-center p-4"> <Loader /> </div> : venueData.map((venue, index) => (
           <li
             key={index}
-            className={`p-2 mx-4 mb-1 ${venue === selectedVenue && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${venue?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
+            className={`p-2 mx-4 mb-1 cursor-pointer ${venue.id === selectedVenue?.id && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${venue.name?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
             onClick={() => {
-              setSelectedVenue(venue);
+              let selectedVenueData = {
+                id: venue.id,
+                name: venue.name,
+              }
+              setSelectedVenue(selectedVenueData);
               setInputValue("");
               setOpen(false);
             }}
-          >{venue}</li>
+          >{venue.name}</li>
         ))}
       </ul>
     </div>

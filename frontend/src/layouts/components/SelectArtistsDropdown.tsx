@@ -1,16 +1,32 @@
 import React, { useState } from "react";
 import { FaAngleDown } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import Loader from "./Loader";
 
-interface ArtistDetails {
-  artistNames: String[];
-  selectedArtists: String[];
-  setSelectedArtists: React.Dispatch<React.SetStateAction<String[]>>;
+interface artistInterface{
+  id:string,
+  name: string,
+  userName: string,
+  email: string,
+  govId: string,
 }
 
-export const SelectArtistDropdown: React.FC<ArtistDetails> = ({ artistNames, selectedArtists, setSelectedArtists }) => {
+interface selectedArtistsI{
+  id: string,
+  name: string,
+}
 
-  const [artists, setArtists] = useState(null)
+interface ArtistDetails {
+  artistData: artistInterface[];
+  selectedArtists: selectedArtistsI[];
+  setSelectedArtists: React.Dispatch<React.SetStateAction<selectedArtistsI[]>>;
+}
+
+
+
+
+export const SelectArtistDropdown: React.FC<ArtistDetails> = ({ artistData, selectedArtists, setSelectedArtists }) => {
+
   const [inputValue, setInputValue] = useState("")
   const [open, setOpen] = useState(false);
 
@@ -26,11 +42,11 @@ export const SelectArtistDropdown: React.FC<ArtistDetails> = ({ artistNames, sel
               key={index}
               className="btn btn-outline-primary px-4 py-2 flex gap-4 items-center justify-center"
               onClick={() => {
-                const newArtists = selectedArtists?.filter((filterArtist) => (filterArtist !== artist))
+                const newArtists = selectedArtists?.filter((filterArtist) => (filterArtist.id !== artist.id))
                 setSelectedArtists(newArtists)
               }}
             >
-              {artist}
+              {artist.name}
               <IoClose size={20}/>
             </div>
           ))
@@ -55,15 +71,21 @@ export const SelectArtistDropdown: React.FC<ArtistDetails> = ({ artistNames, sel
             onChange={(e) => setInputValue(e.target.value.toLowerCase())}
           />
         </div>
-        {artistNames?.map((artist, index) => (
+        {artistData.length < 1 ?<div className="text-center p-4"> <Loader/> </div>: artistData.map((artist, index) => (
           <li
             key={index}
-            className={`p-2 mx-4 mb-1 ${selectedArtists?.includes(artist) && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${artist?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
+            className={`p-2 mx-4 mb-1 cursor-pointer ${selectedArtists?.some(selectedArtist => selectedArtist.id === artist.id) && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${artist.name?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
             onClick={() => {
-              if (!selectedArtists?.includes(artist)) setSelectedArtists([...selectedArtists, artist])
+
+              let artistData = {
+                id: artist.id,
+                name: artist.name,
+              }
+
+              if (!selectedArtists?.some(selectedArtist => selectedArtist.id === artist.id)) setSelectedArtists([...selectedArtists, artistData])
               setInputValue("")
             }}
-          >{artist}</li>
+          >{artist.name}</li>
         ))}
       </ul>
     </div>

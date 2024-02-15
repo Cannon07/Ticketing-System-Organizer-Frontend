@@ -1,15 +1,39 @@
 import { LuUpload } from "react-icons/lu";
 import { FaTrash } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface ImageProps {
-  title: string
+  title: string,
+  file: File | undefined,
+  setFile: React.Dispatch<React.SetStateAction<File | undefined>>,
 }
 
-export const ImageSelector: React.FC<ImageProps> = ({ title }) => {
+export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile }) => {
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("Upload Image");
+
+
+  const handleDeleteClick =()=>{
+    if (!image) {
+      document.getElementById(title)?.click()
+    } else {
+      let upload_input = document.getElementById(title) as any;
+      upload_input.value = "";
+      setImage("");
+      setFileName("Upload Image")
+    }
+  }
+
+  useEffect(()=>{
+    if(file===undefined){
+      let upload_input = document.getElementById(title) as any;
+      upload_input.value = "";
+      setImage("");
+      setFileName("Upload Image")
+    }
+  },[file])
+ 
 
   return (
     <div className="">
@@ -28,16 +52,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title }) => {
         </div>
         <button
           className={`flex justify-center items-center gap-4 btn ${image ? "btn-outline-primary" : "btn-primary"} w-full`}
-          onClick={() => {
-            if (!image) {
-              document.getElementById(title)?.click()
-            } else {
-              let upload_input = document.getElementById(title) as any;
-              upload_input.value = "";
-              setImage("");
-              setFileName("Upload Image")
-            }
-          }}
+          onClick={handleDeleteClick}
         >
           {image ? <FaTrash /> : <LuUpload />}
           {fileName}
@@ -53,8 +68,13 @@ export const ImageSelector: React.FC<ImageProps> = ({ title }) => {
           if (files && files.length > 0) {
             setImage(URL.createObjectURL(files[0]))
             setFileName(files[0].name)
+            setFile(files[0])
+            
           }
         }} />
+   
     </div>
+
+    
   )
 }

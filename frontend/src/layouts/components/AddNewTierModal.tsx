@@ -1,20 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
-interface ArtistProps {
-  tiers: String[];
-  setTiers: React.Dispatch<React.SetStateAction<String[]>>;
-  tiersCapacity: number[];
-  setTiersCapacity: React.Dispatch<React.SetStateAction<number[]>>;
+
+interface tierInterface{
+  name: string,
+  capacity: number,
+  price: number,
 }
 
-const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers, tiersCapacity, setTiersCapacity }) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [newTier, setNewTier] = useState("");
-  const [newCapacity,setNewCapacity] = useState<number>(0);
+interface tierProps {
+  tiers: tierInterface[];
+  setTiers: React.Dispatch<React.SetStateAction<tierInterface[]>>;
 
-  const addTierModal = document.getElementById("addTierModal");
+}
+
+const AddNewTierModal: React.FC<tierProps> = ({ tiers, setTiers}) => {
+
+  const [name, setName] = useState("");
+  const [newCapacity,setNewCapacity] = useState<number>(0);
+  const [tierPrice,setTierPrice] = useState(0);
+
+  
 
   useEffect(() => {
     const addTierModal = document.getElementById("addTierModal");
@@ -52,8 +60,8 @@ const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers, tiersCapacity
                       <input
                         id="tier-name"
                         name="tier-name"
-                        value={newTier}
-                        onChange={(e) => setNewTier(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         className="form-input w-full"
                         placeholder="Enter tier name"
                         type="text"
@@ -89,6 +97,8 @@ const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers, tiersCapacity
                           className="form-input w-full"
                           placeholder="Enter tier Price"
                           type="number"
+                          value={tierPrice}
+                          onChange={(e)=>setTierPrice(e.target.valueAsNumber)}
                           required
                       />
                   </div>
@@ -100,14 +110,30 @@ const AddNewTierModal: React.FC<ArtistProps> = ({ tiers, setTiers, tiersCapacity
             <button
               className={"btn btn-primary w-full"}
               onClick={() => {
-                setNewTier("");
+              
+                if(name==="" || newCapacity===0 || tierPrice===0 ){
+                  toast.dismiss()
+                  toast.error("All fields are required!")
+                  return;
+                }
+                if (name.length > 0) {
+
+                  let newTierData = {
+                        name: name,
+                        capacity: newCapacity,
+                        price: tierPrice,
+                  }
+
+                  setTiers([...tiers, newTierData]);
+                  
+                  toast.success('New tier Added!')
+
+                }
+                
+                setName("");
                 setNewCapacity(0);
-                if (newTier.length > 0) {
-                  setTiers([...tiers, newTier]);
-                }
-                if(newCapacity!=0){
-                  setTiersCapacity([...tiersCapacity,newCapacity])
-                }
+                setTierPrice(0);
+                const addTierModal = document.getElementById("addTierModal");
                 addTierModal!.classList.remove("show");
               }}
             >
