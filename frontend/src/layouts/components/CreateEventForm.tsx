@@ -250,7 +250,7 @@ const CreateEventForm = () => {
       body: raw,
     }
 
-    let response = await fetch(`${PostEvent}`, requestOptions);
+    let response = await fetch(`${PostEvent}?organiserId=389422896959717440`, requestOptions);
     let result = await response.json()
 
     console.log(response)
