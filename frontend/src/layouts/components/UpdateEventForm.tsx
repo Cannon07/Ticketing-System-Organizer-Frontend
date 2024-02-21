@@ -22,8 +22,10 @@ import { SelectCityDropdown } from './SelectCityDropdown';
 import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
 import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
-import { GetEventById, PostEvent } from '@/constants/endpoints/EventEndpoints';
+import { GetEventById, PostEvent, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
+import { resourceLimits } from 'worker_threads';
+import { RESPONSE_LIMIT_DEFAULT } from 'next/dist/server/api-utils';
 
 
 interface venueInterface {
@@ -66,34 +68,50 @@ interface selectedVenueI {
     id: string,
     name: string,
 }
-const UpdateEventForm = () => {
+
+interface IdProps{
+  id: string,
+}
+
+const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
     const router = useRouter();
-    const { hasAccount } = useGlobalContext();
-    const registered = true;
-
+    const { hasAccount, organizerData } = useGlobalContext();
 
     const contract = useContract(CONTRACT_ADDRESS || '', metadata);
 
-    const updateEvents = useTx(contract, 'updateEvents');
-    useTxNotifications(updateEvents);
+    const updateEvent = useTx(contract, 'updateEvents');
+    useTxNotifications(updateEvent);
 
 
 
     useEffect(() => {
-        if (updateEvents.status === 'Finalized') {
-            toast.dismiss()
-            toast.success('Transaction finalized!')
+      if (updateEvent.status === 'Finalized') {
+        let txId = "";
+        console.log(updateEvent)
+        updateEvent.result?.contractEvents?.map((value) => {
+          txId=value.args[1][value.args[1].length-1].slice(0,64)
+          console.log(txId)
+        });
+        toast.dismiss()
+        if (txId === "") {
+          toast.error("Something went wrong!")
+        } else {
+          toast.success('Transaction finalized!')
+          let register_toast = toast.loading('Updating Event..')
+          UpdateEvent(txId);
+          toast.dismiss(register_toast)
         }
-        else if (updateEvents.status === 'PendingSignature') {
+      }
+        else if (updateEvent.status === 'PendingSignature') {
             toast.dismiss()
             toast.loading('Pending signature..')
         }
-        else if (updateEvents.status === 'Broadcast') {
+        else if (updateEvent.status === 'Broadcast') {
             toast.dismiss()
             toast.loading('Broadcasting transaction..')
         }
-        else if (updateEvents.status === 'InBlock') {
+        else if (updateEvent.status === 'InBlock') {
             toast.dismiss()
             toast.loading('Transaction In Block..')
         }
@@ -101,7 +119,7 @@ const UpdateEventForm = () => {
             toast.dismiss();
         }
     }
-    , [updateEvents.status])
+    , [updateEvent.status])
 
     const [eventTitle, setEventTitle] = useState('');
     const [eventDate, setEventDate] = useState('');
@@ -134,6 +152,7 @@ const UpdateEventForm = () => {
     const [originalSelectedArtists,setOriginalSelectedArtists] = useState<selectedArtistsI[]>([]);
     const [originalSelectedVenue,setOriginalSelectedVenue] = useState<selectedVenueI>();
     const [originalSelectedCategory,setOriginalSelectedCategory] = useState('');
+    const [originalSelectedCity, setOriginalSelectedCity] = useState('');
 
     
     const [categoryNames, setCategoryNames] = useState<string[]>(
@@ -169,7 +188,7 @@ const UpdateEventForm = () => {
     const getEventById = async()=>{
         try {
             toast.loading('Fetching event...')
-            const res = await fetch(`${GetEventById}389739729337188417`);
+            const res = await fetch(`${GetEventById}${id}`);
             if (!res.ok) {
                 throw new Error("Failed to fetching event");
             }
@@ -183,6 +202,7 @@ const UpdateEventForm = () => {
 
             setEventTitle(result.name);
             setOriginalEventTitle(result.name);
+
             const dateTimeString = result.dateAndTime;
             
             const dateTime = new Date(dateTimeString)
@@ -193,15 +213,48 @@ const UpdateEventForm = () => {
 
             setEventDate(date)
             setOriginalEventDate(date)
+
             setEventTime(time)
             setOriginalEventTime(time)
 
             setEventDuration(result.eventDuration);
+            setOriginalEventDuration(result.eventDuration);
+            
+            setSelectedCity(result.venueId.placeId);
+            setOriginalSelectedCity(result.venueId.placeId);
+          
+
             setAboutEvent(result.description);
-            // setTiers([...originalTiers]);
-            // setSelectedArtists([...originalSelectedArtists]);
-            // setSelectedVenue();
+            setOriginalAboutEvent(result.description)
+
             setSelectedCategory(result.categoryList[0]);
+            setOriginalSelectedCategory(result.categoryList[0]);
+            
+            const selectedVenueData = {
+              id: result.venueId.id,
+              name: result.venueId.name,
+            }
+            setSelectedVenue(selectedVenueData);
+            setOriginalSelectedVenue(selectedVenueData);
+
+
+            setTiers(result.tiers);
+            setOriginalTiers(result.tiers)
+
+            const selectedArtistData:selectedArtistsI[] = []
+
+            result.artists.map((artist:artistInterface)=>{
+                  const data = {
+                    id: artist.id,
+                    name: artist.name,
+                  }
+                  selectedArtistData.push(data);
+              })
+
+            setSelectedArtists(selectedArtistData);
+            setOriginalSelectedArtists(selectedArtistData);
+          
+
             // router.push('/organizer-profile')
                 
 
@@ -212,17 +265,6 @@ const UpdateEventForm = () => {
             console.log("Error loading artists: ", error);
         }
     }
-
-
-
- 
-
-
-
-
-
- 
-
 
 
 
@@ -245,7 +287,7 @@ const UpdateEventForm = () => {
     }
 
 
-    const UpdateEvent = async () => {
+    const UpdateEvent = async (txId:string) => {
 
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
@@ -283,20 +325,20 @@ const UpdateEventForm = () => {
             ],
             "venueId": selectedVenue?.id,
             "artistList": artistArray,
-            "tierList": tiersArray,
-            "transactionId": '84993939399',
+            // "tierList": tiersArray,
+            "transactionId": txId,
           },
           "imgUrls": images,
         }
         )
     
         var requestOptions = {
-          method: 'POST',
+          method: 'PUT',
           headers: myHeaders,
           body: raw,
         }
     
-        let response = await fetch(`${PostEvent}`, requestOptions);
+        let response = await fetch(`${UpdateEventById}`, requestOptions);
         let result = await response.json()
     
         console.log(response)
@@ -309,7 +351,7 @@ const UpdateEventForm = () => {
           setEventTime('')
           setSelectedCategory('')
           setEventDuration('')
-          // setSelectedCity()
+          setSelectedCity('')
           setSelectedVenue(undefined)
           setTiers([])
           setSelectedArtists([])
@@ -385,25 +427,18 @@ const UpdateEventForm = () => {
     
 
 
-    if (!registered) {
-        router.push('/register-organizer');
-    }
-
-    if (!hasAccount) return <NotConnected />
-
-
     const handleCancelClick = (e: any) => {
         e.preventDefault();
-    //     setEventTitle(originalEventTitle);
-    //     setEventDate(originalEventDate);
-    //     setEventTime(originalEventTime);
-    //     setEventDuration(originalEventDuration);
-    //     setAboutEvent(originalAboutEvent);
-    //     setTiers([...originalTiers]);
-    //     setSelectedArtists([...originalSelectedArtists]);
-    //     setSelectedVenue(originalSelectedVenue);
-    //     setSelectedCategory(originalSelectedCategory);
-    //     router.push('/organizer-profile')
+        setEventTitle(originalEventTitle);
+        setEventDate(originalEventDate);
+        setEventTime(originalEventTime);
+        setEventDuration(originalEventDuration);
+        setAboutEvent(originalAboutEvent);
+        setTiers([...originalTiers]);
+        setSelectedArtists([...originalSelectedArtists]);
+        setSelectedVenue(originalSelectedVenue);
+        setSelectedCategory(originalSelectedCategory);
+        router.push('/organizer-profile')
     };
 
 
@@ -436,20 +471,27 @@ const UpdateEventForm = () => {
         const currentDate = new Date(eventDate + 'T' + eventTime);
         return formatDate(currentDate) + ' ' + formatAMPM(currentDate);
     };
+
     
-    
-    
+    const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalSelectedArtists], originalSelectedVenue, originalSelectedCategory])
+
+    const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, originalAboutEvent, [...selectedArtists], selectedVenue, selectedCategory])
+
 
 
     const handleUpdateEvent = (e: any) => {
         e.preventDefault();
 
-        
-        const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalTiers], [...originalSelectedArtists], originalSelectedVenue, originalSelectedCategory])
-
-        const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...tiers], [...selectedArtists], selectedVenue, selectedCategory])
-
-        if (eventTitle === '') {
+     
+        if(!hasAccount){
+          toast.dismiss()
+          toast.error('You are not connected to wallet!')
+        }
+        else if(organizerData===null){
+          toast.dismiss();
+          toast.error("Please register as organizer..")
+        }
+        else if (eventTitle === '') {
             toast.dismiss();
             toast.error('Please enter event title');
         } else if (eventDate === '') {
@@ -479,32 +521,35 @@ const UpdateEventForm = () => {
         } else if (aboutEvent === '') {
             toast.dismiss();
             toast.error('Please enter about the event');
-        } else if (file === undefined) {
-            toast.dismiss();
-            toast.error('Please upload primary image');
-        } else if (filebg === undefined) {
-            toast.dismiss();
-            toast.error('Please upload background image');
+        }else if (aboutEvent.length <50) {
+          toast.dismiss();
+          toast.error('The About section requires a minimum of 50 words.');
         }
-
-
         else {
+
+
+
             var tiersList: string[] = [];
             var tiersCapacity: number[] = []
             tiers.forEach((tier) => {
                 tiersList.push(tier.name);
                 tiersCapacity.push(tier.capacity);
             });
-            UpdateEvent();
-            // updateEvents.signAndSend([previousHash, newHash]);
+            updateEvent.signAndSend([previousHash, newHash]);
         }
+
+        
 
 
     }
 
+    
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
+          previous: {previousHash} <br />
+          new: {newHash}
+          
         <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
           <div className="mb-4">
             <label htmlFor="title" className="form-label block">

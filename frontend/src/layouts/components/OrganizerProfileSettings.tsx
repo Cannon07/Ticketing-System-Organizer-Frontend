@@ -1,27 +1,93 @@
 "use client"
 
-import React, { useEffect, useState } from 'react';
-import ImageFallback from '@/helpers/ImageFallback';
+import React, { useEffect, useState, useRef } from 'react';
 import { generateHash } from '@/lib/utils/hashGenerator';
 import { useContract, useTx } from 'useink';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
-import metadata from  '@/constants/contract_constants/assets/TicketingSystem.json';
+import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
 import { useTxNotifications } from 'useink/notifications';
 import toast from 'react-hot-toast';
+import { PostImage } from '@/constants/endpoints/ImageEndpoints';
+import { UpdateOrganizerById } from '@/constants/endpoints/OrganizerEndpoints';
 
+interface organizerDataI {
+    id: string | undefined,
+    name: string | undefined,
+    email: string | undefined,
+    govId: string | undefined,
+    profileImg: string | undefined,
+    transactionId: string | undefined,
+    walletId: string | undefined,
+    originalImage: string | undefined,
+    setImage: React.Dispatch<React.SetStateAction<string | undefined>>
 
-const OrganizerProfileSettings = () => {
+}
 
-    const contract = useContract(CONTRACT_ADDRESS,metadata);
-    const updateOrganizer = useTx(contract,'updateOrganizer');
+const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, profileImg, govId, transactionId, walletId, originalImage, setImage }) => {
+
+    const contract = useContract(CONTRACT_ADDRESS, metadata);
+    const updateOrganizer = useTx(contract, 'updateOrganizer');
     useTxNotifications(updateOrganizer);
 
 
-    useEffect(()=>{
+    useEffect(() => {
+        if (updateOrganizer.status === 'Finalized') {
+            toast.dismiss()
+            toast.success('Transaction finalized!')
+            setIsEditing(false);
+        }
+        else if (updateOrganizer.status === 'PendingSignature') {
+            toast.dismiss()
+            toast.loading('Pending signature..')
+        }
+        else if (updateOrganizer.status === 'Broadcast') {
+            toast.dismiss()
+            toast.loading('Broadcasting transaction..')
+        }
+        else if (updateOrganizer.status === 'InBlock') {
+            toast.dismiss()
+            toast.loading('Transaction In Block..')
+        }
+        else {
+            toast.dismiss();
+        }
+    }
+        , [updateOrganizer.status])
+
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [orgName, setOrgName] = useState(name);
+    const [orgEmail, setOrgEmail] = useState(email);
+    const [identity, setIdentity] = useState<string | undefined>(govId);
+    const [profilePic, setProfilePic] = useState(null);
+    const [transId, setTransId] = useState(transactionId);
+    const [loading, setLoading] = useState(false);
+
+    const [file, setFile] = useState<File | undefined>();
+    const imageRef = useRef<HTMLInputElement>(null);
+
+    const [originalName, setOriginalName] = useState(name);
+    const [originalEmail, setOriginalEmail] = useState(email);
+    const [originalIdentity, setOriginalIdentity] = useState<string | undefined>(govId);
+    const [originalProfilePic, setOriginalProfilePic] = useState(null);
+
+
+
+    const updateStatus = () => {
         if(updateOrganizer.status === 'Finalized'){
+          let txId = "";
+          updateOrganizer.result?.contractEvents?.map((value) => {
+            txId = Object.values(value.args[1]).slice(0, 64).join("")
+          });
           toast.dismiss()
-          toast.success('Transaction finalized!')
-          setIsEditing(false);
+          if (txId === "") {
+            toast.error("Something went wrong!")
+          } else {
+            toast.success('Transaction finalized!')
+            let register_toast = toast.loading('Updating Organizer..')
+            uploadImage(txId);
+            toast.dismiss(register_toast);
+          }
         }
         else if(updateOrganizer.status === 'PendingSignature'){
           toast.dismiss()
@@ -36,112 +102,104 @@ const OrganizerProfileSettings = () => {
           toast.loading('Transaction In Block..')
         }
         else{
-            toast.dismiss();
+          toast.dismiss()
         }
       }
-      ,[updateOrganizer.status])
 
+      useEffect(() => {
+        updateStatus();
+      }, [updateOrganizer.status])
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [name, setName] = useState('Nikhil Magar');
-    const [username, setUsername] = useState('Nikhil44');
-    const [email, setEmail] = useState('nikhildmagar@gmail.com');
-    const [identity, setIdentity] = useState('443444994554');
-    const [profilePic, setProfilePic] = useState(null);
-    const [fileName, setFileName] = useState('')
+      const uploadImage = async (txId: string) => {
+          if (typeof(file) === 'undefined') {
+            putOrganizer(txId, originalImage)
+            return;
+          }
 
-    const [originalName, setOriginalName] = useState(name);
-    const [originalUsername, setOriginalUsername] = useState(username);
-    const [originalEmail, setOriginalEmail] = useState(email);
-    const [originalIdentity, setOriginalIdentity] = useState(identity);
-    const [originalProfilePic, setOriginalProfilePic] = useState(null);
+          var formdata = new FormData();
+          formdata.append("file", file);
 
+          var requestOptions = {
+            method: 'POST',
+            body: formdata,
+          };
+
+          let response = await fetch(`${PostImage}`, requestOptions);
+          let result = await response.text();
+          console.log(result);
+          putOrganizer(txId, result);
+      }
+
+      const putOrganizer = async (txId: string, imageUrl: string | undefined) => {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+          "id": id,
+          "name": name,
+          "email": email,
+          "govId": govId,
+          "walletId": walletId,
+          "transactionId": txId,
+          "profileImg": imageUrl,
+        });
+
+        console.log(raw);
+
+        var requestOptions = {
+          method: 'PUT',
+          headers: myHeaders,
+          body: raw,
+        };
+
+        let response = await fetch(`${UpdateOrganizerById}${id}`, requestOptions)
+        if (response.ok) {
+          let result = await response.json();
+          setTransId(txId);
+          console.log(result)
+          toast.success("Organizer Updated!")
+          setLoading(false)
+        }
+    }
 
     const handleEditClick = () => {
         setIsEditing(true);
         setOriginalName(name);
-        setOriginalUsername(username);
         setOriginalEmail(email);
-        setOriginalIdentity(identity)
+        setOriginalIdentity(govId)
         setOriginalProfilePic(profilePic);
     };
 
     const handleSaveChanges = (e: any) => {
         e.preventDefault();
-        const hashData = generateHash([name,username,email,identity,profilePic]);
-        setFileName('');
-        updateOrganizer.signAndSend([hashData]);
+        if (orgName === "") toast.error("Name cannot be empty!");
+        else if (orgEmail === "") toast.error("Email cannot be empty!");
+        else if (identity==="") toast.error("Adhar number cannot be empty!");
+        else if(identity && identity.length<12) toast.error("Adhar number must be of 12 digits")
+        else {
+            const hashData = generateHash([orgName, orgEmail, identity, profilePic]);
+            updateOrganizer.signAndSend([hashData]);
+        }
     };
 
     const handleCancelEdit = () => {
-        setName(originalName);
-        setUsername(originalUsername);
-        setEmail(originalEmail);
+        setOrgName(originalName);
+        setOrgEmail(originalEmail);
         setIdentity(originalIdentity)
         setProfilePic(originalProfilePic);
+        setProfilePic(null);
+        setFile(undefined);
         setIsEditing(false);
-        setFileName('');
+
 
     };
 
-    const handleProfilePicChange = (e: any) => {
-        const file = e.target.files?.[0];
-        setFileName(file.name);
-        setProfilePic(file || null);
-    };
     return (
         <div className="h-full w-full">
             <div className="bg-theme-light dark:bg-darkmode-theme-light overflow-hidden shadow rounded-lg h-full w-full flex items-center justify-center">
                 <div className="p-8 rounded shadow-md w-full">
                     <h1 className="text-2xl font-semibold mb-4 text-center">Profile Settings</h1>
-                    <form>
-                        <div className={`mb-4 ${isEditing ? '' : 'flex items-center justify-center'}`}>
-
-
-                            {isEditing ? (
-                                <div>
-                                    <label htmlFor="profilePic" className="flex flex-col items-center justify-center gap-2 border border-gray-300 dark:border-darkmode-border max-w-[200px] h-[100px] rounded cursor-pointer">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                                        </svg>
-                                        Upload profile picture
-
-
-
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id="profilePic"
-                                        name="profilePic"
-                                        onChange={handleProfilePicChange}
-                                        accept="image/*"
-                                        className="hidden"
-                                    />
-
-                                    {fileName}
-
-
-                                </div>
-                            ) : (
-                                <div>
-                                    {profilePic ? (
-                                        <div className="w-44 h-44 overflow-hidden rounded-full">
-
-                                            <ImageFallback
-                                                height={100}
-                                                width={100}
-                                                src={URL.createObjectURL(profilePic)}
-                                                alt="event image"
-                                                className="object-cover w-full h-full"
-                                            />
-                                        </div>
-                                    ) : (
-                                        'No picture selected'
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
+                    <div>
                         {!isEditing &&
 
                             <div className="py-4">
@@ -157,33 +215,15 @@ const OrganizerProfileSettings = () => {
                                     type="text"
                                     id="name"
                                     name="name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    value={orgName}
+                                    onChange={(e) => setOrgName(e.target.value)}
                                     className="form-input-profile"
                                 />
                             ) : (
-                                <div>{name}</div>
+                                <div>{orgName}</div>
                             )}
                         </div>
 
-
-                        <div className={`mb-4 ${isEditing ? '' : 'flex justify-between'}`}>
-                            <label htmlFor="username" className="form-label-profile">
-                                Username
-                            </label>
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="form-input-profile"
-                                />
-                            ) : (
-                                <div>{username}</div>
-                            )}
-                        </div>
 
                         <div className={`mb-4 ${isEditing ? '' : 'flex justify-between'}`}>
                             <label htmlFor="email" className="form-label-profile">
@@ -194,12 +234,12 @@ const OrganizerProfileSettings = () => {
                                     type="email"
                                     id="email"
                                     name="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={orgEmail}
+                                    onChange={(e) => setOrgEmail(e.target.value)}
                                     className="form-input-profile"
                                 />
                             ) : (
-                                <div>{email}</div>
+                                <div>{orgEmail}</div>
                             )}
                         </div>
 
@@ -220,9 +260,69 @@ const OrganizerProfileSettings = () => {
                                 <div>{identity}</div>
                             )}
                         </div>
-                    </form>
-                    <div className="flex justify-start mt-6">
 
+                        {!isEditing &&
+                            <>
+                                <div className={`mb-4 flex justify-between`}>
+                                    <label htmlFor="email" className="form-label-profile">
+                                        Wallet Id
+                                    </label>
+                                    <div>{walletId}</div>
+                                </div>
+
+                                <div className={`mb-4 flex justify-between`}>
+                                    <label htmlFor="email" className="form-label-profile">
+                                        Transaction Id
+                                    </label>
+                                    <div>{loading ? 'Loading...' : transId}</div>
+                                </div>
+                            </>
+                        }
+
+                        {isEditing && <div className={"flex gap-6 flex-col md:flex-row w-full"}>
+                            <div className="w-full">
+                                <label
+                                    className="form-label-profile block"
+                                    htmlFor="file_input"
+                                >
+                                    Profile Image
+                                </label>
+                                <div className="flex gap-2 items-center">
+                                    <button
+                                        onClick={() => {
+                                            document.getElementById("image-input-profile")?.click()
+                                        }}
+                                        className="btn btn-sm btn-outline-primary h-fit mt-1">
+                                        Upload
+                                    </button>
+                                    <input
+                                        id="uplaoded-file"
+                                        name="uploaded-file"
+                                        className="form-input-disable form-input-profile w-full"
+                                        value={`${file ? file.name : "No file chosen"}`}
+                                        disabled
+                                    />
+                                </div>
+                                <input
+                                    id="image-input-profile"
+                                    ref={imageRef}
+                                    type="file"
+                                    className="hidden"
+                                    onChange={({ target: { files } }) => {
+                                        if (files && files.length > 0) {
+                                            setImage(URL.createObjectURL(files[0]));
+                                            setFile(files[0]);
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>}
+                    </div>
+
+
+
+
+                    <div className="flex justify-start mt-6">
 
                         {isEditing ? (
                             <>

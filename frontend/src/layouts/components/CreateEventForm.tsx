@@ -25,6 +25,8 @@ import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { PostEvent } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
+import { ConnectWallet } from '../web3/ConnectWallet';
+import { PostOrganizerEvent } from '@/constants/endpoints/OrganizerEndpoints';
 
 
 
@@ -71,20 +73,14 @@ interface selectedVenueI {
 }
 
 const CreateEventForm = () => {
-
   const router = useRouter();
-  const { hasAccount } = useGlobalContext();
-  const registered = true;
-
-
+  const { hasAccount, organizerData } = useGlobalContext();
   const contract = useContract(CONTRACT_ADDRESS, metadata);
 
 
 
   const registerEvent = useTx(contract, 'registerEvent');
   useTxNotifications(registerEvent);
-
-
 
   useEffect(() => {
 
@@ -100,7 +96,9 @@ const CreateEventForm = () => {
         toast.error("Something went wrong!")
       } else {
         toast.success('Transaction finalized!')
+        let register_toast = toast.loading('Creating Event..')
         CreateEvent(txId);
+        toast.dismiss(register_toast)
       }
     }
     else if (registerEvent.status === 'PendingSignature') {
@@ -176,10 +174,6 @@ const CreateEventForm = () => {
 
 
 
-  const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...tiers], [...selectedArtists], selectedVenue, selectedCategory, file,filebg])
-
-
-
   const postImg = async (fileData: File | undefined) => {
 
     if (typeof (fileData) === 'undefined') return;
@@ -225,7 +219,6 @@ const CreateEventForm = () => {
     let [primaryImg, bgImg] = await Promise.all([primaryImgPromise, bgImgPromise]);
     var images = [primaryImg, bgImg];
 
-
     let raw = JSON.stringify({
       "event": {
         "name": eventTitle,
@@ -250,8 +243,9 @@ const CreateEventForm = () => {
       body: raw,
     }
 
-    let response = await fetch(`${PostEvent}?organiserId=389422896959717440`, requestOptions);
+    let response = await fetch(`${PostOrganizerEvent}${organizerData?.id}`, requestOptions);
     let result = await response.json()
+
 
     console.log(response)
     console.log(result)
@@ -363,14 +357,22 @@ const CreateEventForm = () => {
     return formatDate(currentDate) + ' ' + formatAMPM(currentDate);
   };
 
-
+  console.log(eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedVenue, selectedCategory);
+ 
 
 
 
   const handleCreateEvent = (e: any) => {
     e.preventDefault();
-
-    if (eventTitle === '') {
+    if(!hasAccount){
+      toast.dismiss()
+      toast.error('You are not connected to wallet!')
+    }
+    else if(organizerData===null){
+      toast.dismiss();
+      toast.error("Please register as organizer..")
+    }
+    else if (eventTitle === '') {
       toast.dismiss();
       toast.error('Please enter event title');
     } else if (eventDate === '') {
@@ -400,7 +402,12 @@ const CreateEventForm = () => {
     } else if (aboutEvent === '') {
       toast.dismiss();
       toast.error('Please enter about the event');
-    } else if (file === undefined) {
+    }
+    else if (aboutEvent.length <50) {
+      toast.dismiss();
+      toast.error('The About section requires a minimum of 50 words.');
+    }
+     else if (file === undefined) {
       toast.dismiss();
       toast.error('Please upload primary image');
     } else if (filebg === undefined) {
@@ -408,6 +415,12 @@ const CreateEventForm = () => {
       toast.error('Please upload background image');
     }
     else {
+
+
+      const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedVenue, selectedCategory])
+     
+
+
       var tiersList: string[] = [];
       var tiersCapacity: number[] = []
       tiers.forEach((tier) => {
@@ -421,11 +434,11 @@ const CreateEventForm = () => {
 
 
 
-  if (!registered) {
-    router.push('/register-organizer');
-  }
+  // if (organizerData===null) {
+  //   router.push('/register-organizer');
+  // }
 
-  if (!hasAccount) return <NotConnected />
+  // if (!hasAccount) return <NotConnected />
 
 
   return (

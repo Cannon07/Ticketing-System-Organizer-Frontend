@@ -1,16 +1,25 @@
 "use client"
 
 import Accordion from "@/shortcodes/Accordion"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageFallback from "@/helpers/ImageFallback";
 import OrganizerProfileSettings from "@/components/OrganizerProfileSettings";
 import HostedEventsCard from "@/components/HostedEventsCard";
 import PastHostingsCard from "@/components/PastHostingsCard";
+import { useGlobalContext } from "@/app/context/globalContext";
 
 const OrganizerProfile = () => {
 
+    const { organizerData } = useGlobalContext();
     const [tab, setTab] = useState('Hosted Events')
+    const [image, setImage] = useState(organizerData?.profileImg);
 
+
+    useEffect(() => {
+        setTab('Hosted Events');
+        setImage(organizerData?.profileImg)
+    }, [organizerData])
+ 
     return (
         <div className="section-sm">
             <div className="container">
@@ -31,13 +40,13 @@ const OrganizerProfile = () => {
                                                         <ImageFallback
                                                             height={100}
                                                             width={100}
-                                                            src={'/images/event-image2.jpg'}
-                                                            alt="event image"
+                                                            src={image}
+                                                            alt="Profile image"
                                                             className="object-cover w-full h-full"
                                                         />
                                                     </div>
 
-                                                    <span >Nikhil Magar</span>
+                                                    <span >{organizerData?.name}</span>
 
                                                 </div>
                                             </li>
@@ -100,22 +109,20 @@ const OrganizerProfile = () => {
                                 <div className="lg:sticky lg:top-28 h-fit w-full px-3 py-4 overflow-y-auto bg-theme-light dark:bg-darkmode-theme-light rounded-lg  lg:border lg:border-border lg:dark:border-darkmode-border">
                                     <ul className="space-y-2 font-medium">
 
-
                                         <li>
                                             <div className="flex flex-col items-center p-2 gap-2 text-gray-900 rounded-lg dark:text-white">
 
                                                 <div className="w-44 h-44 overflow-hidden rounded-full">
-
                                                     <ImageFallback
                                                         height={100}
                                                         width={100}
-                                                        src={'/images/event-image2.jpg'}
-                                                        alt="event image"
+                                                        src={image}
+                                                        alt="Profile image"
                                                         className="object-cover w-full h-full"
                                                     />
                                                 </div>
 
-                                                <span >Nikhil Magar</span>
+                                                <span >{organizerData?.name}</span>
 
                                             </div>
                                         </li>
@@ -181,27 +188,18 @@ const OrganizerProfile = () => {
                                 tab === 'Hosted Events' ? (
 
                                     <div className="flex justify-center items-center flex-wrap">
-
                                         <HostedEventsCard />
-                                        <HostedEventsCard />
-                                        <HostedEventsCard />
-                                        <HostedEventsCard />
-                                        <HostedEventsCard />
-
                                     </div>
 
                                 ) : (
                                     tab === 'Past Hostings' ? (
-
                                         <div className="flex justify-center items-center flex-wrap">
-
                                             <PastHostingsCard />
                                             <PastHostingsCard />
                                             <PastHostingsCard />
                                             <PastHostingsCard />
                                             <PastHostingsCard />
                                             <PastHostingsCard />
-
                                         </div>
 
 
@@ -210,7 +208,17 @@ const OrganizerProfile = () => {
                                         tab === 'Profile Settings' ? (
                                             <div className="flex justify-center items-center flex-wrap">
 
-                                                <OrganizerProfileSettings />
+                                                <OrganizerProfileSettings
+                                                    id={organizerData?.id}
+                                                    name={organizerData?.name}
+                                                    email={organizerData?.email}
+                                                    govId={organizerData?.govId}
+                                                    profileImg={organizerData?.profileImg}
+                                                    transactionId={organizerData?.transactionId}
+                                                    walletId={organizerData?.walletId}
+                                                    originalImage={image}
+                                                    setImage={setImage}
+                                                />
 
                                             </div>
 

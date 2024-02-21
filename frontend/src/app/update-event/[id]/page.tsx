@@ -3,9 +3,14 @@ import UpdateEventForm from "@/components/UpdateEventForm";
 import OrganizerPageHeader from "@/partials/OrganizerPageHeader";
 
 
-
-const UpdateEvent = async () => {
-
+interface UpdateEventProps {
+    params: {
+      id: string; 
+    };
+  }
+  
+  const UpdateEvent: React.FC<UpdateEventProps> = ({ params }) => {
+    const { id } = params;
 
     return (
         <>
@@ -14,7 +19,8 @@ const UpdateEvent = async () => {
             <section className="section-sm">
                 <div className="container">
                     <div className="row px-4">
-                        <UpdateEventForm />
+                        <UpdateEventForm id={id}/>
+                        
                     </div>
                 </div>
             </section>
