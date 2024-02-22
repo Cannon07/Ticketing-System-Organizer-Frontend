@@ -4,12 +4,14 @@ import { getListPage } from "@/lib/contentParser";
 import { markdownify } from "@/lib/utils/textConverter";
 import SeoMeta from "@/partials/SeoMeta";
 import { RegularPage } from "@/types";
+import { useGlobalContext } from "../context/globalContext";
+import { useRouter } from "next/navigation";
 
 const About = () => {
   const data: RegularPage = getListPage("about/_index.md");
   const { frontmatter, content } = data;
   const { title, meta_title, description, image } = frontmatter;
-
+  
   return (
     <>
       <SeoMeta

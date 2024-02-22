@@ -4,9 +4,7 @@ import React, { useEffect, useState } from 'react'
 import ImageFallback from '@/helpers/ImageFallback'
 import { GoHourglass } from 'react-icons/go';
 import { useRouter } from 'next/navigation';
-import { GetEventsByCity } from '@/constants/endpoints/EventEndpoints';
 import { useGlobalContext } from '@/app/context/globalContext';
-import { min } from 'date-fns';
 import { GetOrganizerEvents } from '@/constants/endpoints/OrganizerEndpoints';
 import Loader from './Loader';
 
@@ -52,17 +50,19 @@ interface eventsDataI {
     transactionId: string,
 }
 
+interface eventDataProps{
+    eventsData: eventsDataI[],
+}
 
 
 
-const HostedEventsCard = () => {
+
+const HostedEventsCard: React.FC<eventDataProps> = ({eventsData}) => {
 
     const router = useRouter();
 
 
     const [toggle, setToggle] = useState(false);
-    const { organizerData } = useGlobalContext();
-    const [eventsData, setEventsData] = useState<eventsDataI[]>([])
 
 
     const formatDateAndTime = (dateTimeString: string): { date: string, time: string } => {
@@ -95,32 +95,8 @@ const HostedEventsCard = () => {
 
     
 
-    const getEventsByOrganzer = async () => {
-
-        var requestOptions = {
-            method: 'GET',
-        };
-
-        let response = await fetch(`${GetOrganizerEvents}${organizerData?.id}`, requestOptions)
-        let result = await response.json()
-        console.log(result)
-
-        if (response.ok) {
-            setEventsData(result);
-        }
-        else {
-            console.log("error fetching events")
-        }
-
-    }
-
-    useEffect(() => {
-        getEventsByOrganzer();
-    }, [organizerData])
-
 
     return (
-
 
      <>   
         {eventsData?eventsData.map((eventData) => (

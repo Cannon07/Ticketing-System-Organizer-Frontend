@@ -7,17 +7,82 @@ import OrganizerProfileSettings from "@/components/OrganizerProfileSettings";
 import HostedEventsCard from "@/components/HostedEventsCard";
 import PastHostingsCard from "@/components/PastHostingsCard";
 import { useGlobalContext } from "@/app/context/globalContext";
+import { GetOrganizerEvents } from "@/constants/endpoints/OrganizerEndpoints";
+
+interface artistI {
+    id: string,
+    name: string,
+    userName: string,
+    email: string,
+    govId: string,
+    profileImg: string,
+}
+
+interface tiersI {
+    id: string,
+    name: string,
+    capacity: number,
+    price: number,
+}
+
+interface venueI{
+    id: string,
+    name: string,
+    address: string,
+    capacity: number,
+    placeId: string,
+}
+
+
+
+interface eventsDataI {
+    id: string,
+    name: string,
+    dateAndTime: string,
+    description: string,
+    eventDuration: string,
+    imageUrls: string[],
+    categoryList: string[],
+    venueId: venueI,
+    artists: artistI[],
+    tiers: tiersI[],
+    transactionId: string,
+}
+
 
 const OrganizerProfile = () => {
 
     const { organizerData } = useGlobalContext();
     const [tab, setTab] = useState('Hosted Events')
     const [image, setImage] = useState(organizerData?.profileImg);
+    const [eventsData, setEventsData] = useState<eventsDataI[]>([])
+
+    
+    const getEventsByOrganzer = async () => {
+
+        var requestOptions = {
+            method: 'GET',
+        };
+
+        let response = await fetch(`${GetOrganizerEvents}${organizerData?.id}`, requestOptions)
+        let result = await response.json()
+        console.log(result)
+
+        if (response.ok) {
+            setEventsData(result);
+        }
+        else {
+            console.log("error fetching events")
+        }
+
+    }
+
 
 
     useEffect(() => {
         setTab('Hosted Events');
         setImage(organizerData?.profileImg)
+        getEventsByOrganzer();
     }, [organizerData])
  
     return (
@@ -30,7 +95,6 @@ const OrganizerProfile = () => {
                                 <aside className="w-full px-3 relative">
                                     <div className="lg:sticky lg:top-28 h-fit w-full px-3 py-4 overflow-y-auto bg-theme-light dark:bg-darkmode-theme-light rounded-lg  lg:border lg:border-border lg:dark:border-darkmode-border">
                                         <ul className="space-y-2 font-medium">
-
 
                                             <li>
                                                 <div className="flex flex-col items-center p-2 gap-2 text-gray-900 rounded-lg dark:text-white">
@@ -188,7 +252,7 @@ const OrganizerProfile = () => {
                                 tab === 'Hosted Events' ? (
 
                                     <div className="flex justify-center items-center flex-wrap">
-                                        <HostedEventsCard />
+                                        <HostedEventsCard eventsData={eventsData} />
                                     </div>
 
                                 ) : (

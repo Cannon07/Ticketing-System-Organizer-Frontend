@@ -1,29 +1,28 @@
+"use client"
 
-// import config from "@/config/config.json";
-// import { getListPage } from "@/lib/contentParser";
 import OrganizerRegistrationForm from "@/components/OrganizerRegistrationForm";
 import OrganizerPageHeader from "@/partials/OrganizerPageHeader";
-// import SeoMeta from "@/partials/SeoMeta";
-// import { RegularPage } from "@/types";
+import { useGlobalContext } from "../context/globalContext";
+import NotConnected from "../not-connected";
+import { useEffect } from "react";
 
 
-const OrganizerRegistration = async () => {
-    //   const data: RegularPage = getListPage("contact/_index.md");
-    //   const { frontmatter } = data;
-    //   const { title, description, meta_title, image } = frontmatter;
-    //   const { contact_form_action } = config.params;
 
+
+const OrganizerRegistration = () => {
+
+    const {hasAccount,organizerData} = useGlobalContext()
+
+    // useEffect(()=>{
+
+    //     if(!hasAccount){
+    //         return <NotConnected/>
+    //     }
+    // },[hasAccount])
 
     return (
-        <>
-            {
-                /* <SeoMeta
-            title={title}
-            meta_title={meta_title}
-            description={description}
-            image={image}
-            /> */
-            }
+        <>{hasAccount?
+           <div>
             <OrganizerPageHeader title={"Organizer Registration"} />
             <section className="section-sm">
                 <div className="container">
@@ -32,6 +31,8 @@ const OrganizerRegistration = async () => {
                     </div>
                 </div>
             </section>
+            </div>:<NotConnected/>
+            }
         </>
     );
 };

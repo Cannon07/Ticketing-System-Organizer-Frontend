@@ -1,16 +1,27 @@
+"use client"
 
 import CreateEventForm from "@/components/CreateEventForm";
 import OrganizerPageHeader from "@/partials/OrganizerPageHeader";
+import { useGlobalContext } from "../context/globalContext";
+import NotConnected from "../not-connected";
+import { useRouter } from "next/navigation";
 
 
 
-const CreateEvent = async () => {
+const CreateEvent = () => {
     
+    const {organizerData, hasAccount} = useGlobalContext()
+    
+    const router = useRouter()
+
+    
+    // if (!hasAccount) return <NotConnected />
 
 
     return (
-        <>
-          
+        <>  
+        
+            {organizerData? <div>
             <OrganizerPageHeader title={"Create Event"} />
             <section className="section-sm">
                 <div className="container">
@@ -18,7 +29,9 @@ const CreateEvent = async () => {
                             <CreateEventForm />
                     </div>
                 </div>
-            </section>
+            </section> 
+            </div>:router.push('/register-organizer')
+            }
         </>
     );
 };

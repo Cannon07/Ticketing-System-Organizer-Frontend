@@ -28,7 +28,7 @@ const OrganizerRegistrationForm = () => {
 
     // const [aadharError, setAadharError] = useState(false);
     
-    const { walletAddress, setConnectLoading } = useGlobalContext();
+    const { walletAddress, setConnectLoading, organizerData } = useGlobalContext();
     const { disconnect } = useWallet();
     const router = useRouter()
 
@@ -39,11 +39,13 @@ const OrganizerRegistrationForm = () => {
 
     
     const [fullName, setFullName] = useState<string>('');
-    const [username, setUsername] = useState<string>('')
     const [email, setEmail] = useState<string>('');
     const [aadharNumber, setAadharNumber] = useState<string>('');
     const [file, setFile] = useState<File | undefined>();
     const imageRef = useRef<HTMLInputElement>(null);
+
+
+  
 
 
     useEffect(() => {
@@ -90,11 +92,6 @@ const OrganizerRegistrationForm = () => {
         , [registerOrganizer.status])
 
 
-
-
-
-
-    // if (!hasAccount) return <NotConnected />
 
 
     const saveOrganizer = async (txId: String, imageUrl: String) => {
@@ -163,15 +160,14 @@ const OrganizerRegistrationForm = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         
-   
         if (fullName === "") {
             toast.error("Please enter Full Name");
         }
         else if (email === ""){ 
             toast.error("Please enter Email");
         }
-        else if (username === ""){ 
-            toast.error("Please enter Username");
+        else if(aadharNumber === ""){
+             toast.error("Please enter your Adhar Number")
         }
         else if (typeof(file) === 'undefined'){
              toast.error("Please upload Profile Image");
@@ -200,6 +196,8 @@ const OrganizerRegistrationForm = () => {
     };
 
     return (
+
+    
 
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
             <form className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8" method="POST">

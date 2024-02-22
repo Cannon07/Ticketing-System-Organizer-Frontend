@@ -73,14 +73,15 @@ interface selectedVenueI {
 }
 
 const CreateEventForm = () => {
-  const router = useRouter();
+
   const { hasAccount, organizerData } = useGlobalContext();
   const contract = useContract(CONTRACT_ADDRESS, metadata);
 
-
-
   const registerEvent = useTx(contract, 'registerEvent');
   useTxNotifications(registerEvent);
+
+ 
+
 
   useEffect(() => {
 
@@ -117,6 +118,9 @@ const CreateEventForm = () => {
       toast.dismiss()
     }
   }, [registerEvent.status])
+
+
+
 
 
 
@@ -434,11 +438,6 @@ const CreateEventForm = () => {
 
 
 
-  // if (organizerData===null) {
-  //   router.push('/register-organizer');
-  // }
-
-  // if (!hasAccount) return <NotConnected />
 
 
   return (
