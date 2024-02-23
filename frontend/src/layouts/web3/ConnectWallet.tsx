@@ -22,6 +22,7 @@ export interface AccountList {
 }
 
 export const ConnectWallet = () => {
+  
   const { account, accounts, setAccount, connect, disconnect } = useWallet();
   const installedWallets = useInstalledWallets();
   const uninstalledWallets = useUninstalledWallets();

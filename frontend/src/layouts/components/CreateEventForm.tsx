@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
-import NotConnected from '@/app/not-connected';
-import { useRouter } from 'next/navigation';
 import { SelectArtistDropdown } from './SelectArtistsDropdown';
 import { SelectVenueDropdown } from './SelectVenueDropdown';
 import AddNewArtistModal from './AddNewArtistModal';
@@ -18,14 +16,11 @@ import metadata from '@/constants/contract_constants/assets/TicketingSystem.json
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
 import { generateHash } from '@/lib/utils/hashGenerator';
 import toast from 'react-hot-toast';
-import { useWallet } from 'useink';
 import { SelectCityDropdown } from './SelectCityDropdown';
 import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
 import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
-import { PostEvent } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
-import { ConnectWallet } from '../web3/ConnectWallet';
 import { PostOrganizerEvent } from '@/constants/endpoints/OrganizerEndpoints';
 
 
@@ -118,12 +113,6 @@ const CreateEventForm = () => {
       toast.dismiss()
     }
   }, [registerEvent.status])
-
-
-
-
-
-
 
 
   const [eventTitle, setEventTitle] = useState('');

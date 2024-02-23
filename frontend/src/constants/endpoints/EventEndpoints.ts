@@ -8,5 +8,4 @@ export const GetEventsByCity = `${BaseURL}/events/city?city=`
 export const PostEvent = `${BaseURL}/events/`;
 
 //Put
-
 export const UpdateEventById = `${BaseURL}/events/update?id=`

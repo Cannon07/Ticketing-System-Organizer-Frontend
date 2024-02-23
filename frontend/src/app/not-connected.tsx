@@ -2,7 +2,6 @@
 
 const NotConnected = () => {
 
-
   return (
     <>
 

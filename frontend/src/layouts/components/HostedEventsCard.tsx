@@ -4,8 +4,6 @@ import React, { useEffect, useState } from 'react'
 import ImageFallback from '@/helpers/ImageFallback'
 import { GoHourglass } from 'react-icons/go';
 import { useRouter } from 'next/navigation';
-import { useGlobalContext } from '@/app/context/globalContext';
-import { GetOrganizerEvents } from '@/constants/endpoints/OrganizerEndpoints';
 import Loader from './Loader';
 
 

@@ -25,7 +25,7 @@ interface tiersI {
     price: number,
 }
 
-interface venueI{
+interface venueI {
     id: string,
     name: string,
     address: string,
@@ -56,8 +56,42 @@ const OrganizerProfile = () => {
     const [tab, setTab] = useState('Hosted Events')
     const [image, setImage] = useState(organizerData?.profileImg);
     const [eventsData, setEventsData] = useState<eventsDataI[]>([])
+    const currentDateAndTime = new Date();
 
-    
+    const [upcomingEvents, setUpcomingEvents] = useState<eventsDataI[]>([]);
+    const [pastEvents, setPastEvents] = useState<eventsDataI[]>([]);
+
+    const filterEvents = (events: eventsDataI[]) => {
+
+        const upcoming: eventsDataI[] = [];
+        const past: eventsDataI[] = [];
+
+        events.forEach(event => {
+            const eventDateAndTime = new Date(event.dateAndTime);
+
+            if (eventDateAndTime > currentDateAndTime) {
+                upcoming.push(event);
+            } else {
+                past.push(event);
+            }
+        });
+
+
+        past.sort((a, b) => new Date(b.dateAndTime).getTime() - new Date(a.dateAndTime).getTime());
+
+        upcoming.sort((a, b) => new Date(a.dateAndTime).getTime() - new Date(b.dateAndTime).getTime());
+
+        setUpcomingEvents(upcoming);
+        setPastEvents(past);
+    };
+
+
+    useEffect(() => {
+        filterEvents(eventsData);
+    }, [eventsData]);
+
+
+
     const getEventsByOrganzer = async () => {
 
         var requestOptions = {
@@ -84,7 +118,7 @@ const OrganizerProfile = () => {
         setImage(organizerData?.profileImg)
         getEventsByOrganzer();
     }, [organizerData])
- 
+
     return (
         <div className="section-sm">
             <div className="container">
@@ -252,20 +286,15 @@ const OrganizerProfile = () => {
                                 tab === 'Hosted Events' ? (
 
                                     <div className="flex justify-center items-center flex-wrap">
-                                        <HostedEventsCard eventsData={eventsData} />
+                                        <HostedEventsCard eventsData={upcomingEvents} />
                                     </div>
 
                                 ) : (
                                     tab === 'Past Hostings' ? (
                                         <div className="flex justify-center items-center flex-wrap">
-                                            <PastHostingsCard />
-                                            <PastHostingsCard />
-                                            <PastHostingsCard />
-                                            <PastHostingsCard />
-                                            <PastHostingsCard />
-                                            <PastHostingsCard />
-                                        </div>
+                                            <PastHostingsCard eventsData={pastEvents} />
 
+                                        </div>
 
                                     ) : (
 
