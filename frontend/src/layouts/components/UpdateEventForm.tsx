@@ -71,6 +71,7 @@ interface selectedVenueI {
 
 interface IdProps{
   id: string,
+
 }
 
 const UpdateEventForm: React.FC<IdProps> = ({id}) => {
@@ -291,6 +292,8 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
+
+        toast.loading('Updating event..')
     
         var tiersArray: tierInterface[] = [];
         tiers.forEach(function (tier) {
@@ -316,6 +319,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     
         let raw = JSON.stringify({
           "event": {
+            "id": id,
             "name": eventTitle,
             "dateAndTime": getCurrentDateTimeFormatted(),
             "description": aboutEvent,
@@ -325,7 +329,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             ],
             "venueId": selectedVenue?.id,
             "artistList": artistArray,
-            // "tierList": tiersArray,
+            "tierList": tiersArray,
             "transactionId": txId,
           },
           "imgUrls": images,
@@ -338,7 +342,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           body: raw,
         }
     
-        let response = await fetch(`${UpdateEventById}`, requestOptions);
+        let response = await fetch(`${UpdateEventById}${id}`, requestOptions);
         let result = await response.json()
     
         console.log(response)
@@ -359,11 +363,12 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           setFile(undefined)
           setFilebg(undefined)
           toast.dismiss();
-          toast.success('Event created successfully!');
+          toast.success('Event updated successfully!');
+          router.push('/organizer-profile');
         }
         else {
           toast.dismiss();
-          toast.error('Failed to create event', result.statusMsg)
+          toast.error('Failed to update event', result.statusMsg)
         }
 
     }
@@ -526,7 +531,6 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           toast.error('The About section requires a minimum of 50 words.');
         }
         else {
-
 
 
             var tiersList: string[] = [];

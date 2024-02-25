@@ -131,14 +131,14 @@ const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, p
       }
 
       const putOrganizer = async (txId: string, imageUrl: string | undefined) => {
+        toast.loading('Updating organizer..')
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
         var raw = JSON.stringify({
-          "id": id,
-          "name": name,
-          "email": email,
-          "govId": govId,
+          "name": orgName,
+          "email": orgEmail,
+          "govId": identity,
           "walletId": walletId,
           "transactionId": txId,
           "profileImg": imageUrl,
@@ -157,6 +157,7 @@ const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, p
           let result = await response.json();
           setTransId(txId);
           console.log(result)
+          toast.dismiss()
           toast.success("Organizer Updated!")
           setLoading(false)
         }

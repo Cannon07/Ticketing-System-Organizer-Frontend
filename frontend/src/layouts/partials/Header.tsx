@@ -40,9 +40,6 @@ const Header = () => {
 
 
 
-
-
-
   // scroll to top on route change
   useEffect(() => {
     window.scroll(0, 0);

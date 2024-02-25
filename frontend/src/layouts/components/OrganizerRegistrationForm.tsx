@@ -174,9 +174,8 @@ const OrganizerRegistrationForm = () => {
         }
         else {
           const hashData = generateHash([walletAddress,fullName,email,aadharNumber,file])
-          const registerModal = document.getElementById("registerModal");
           registerOrganizer.signAndSend([hashData]);
-          registerModal!.classList.remove("show");
+            
         }
     }
 

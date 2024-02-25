@@ -62,7 +62,7 @@ export const ConnectWallet = () => {
       let response = await fetch(`${GetOrganizerByWalletId}${account?.address}`, requestOptions)
       let result = await response.json()
       console.log(result)
-      if (response.status == 404) {
+      if (response.status == 400) {
         router.push('/register-organizer')
         setConnectLoading(false);
         setOrganizerData(null);
