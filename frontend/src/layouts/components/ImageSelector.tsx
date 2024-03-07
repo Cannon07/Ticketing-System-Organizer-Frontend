@@ -63,7 +63,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile }) =>
         id={title}
         type="file"
         name="image"
-        accept="image/png, image/jpg"
+        accept="image/png,image/jpeg"
         onChange={({ target: {files} }) => {
           if (files && files.length > 0) {
             setImage(URL.createObjectURL(files[0]))

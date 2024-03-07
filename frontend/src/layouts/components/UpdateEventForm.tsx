@@ -229,10 +229,11 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             setSelectedCategory(result.categoryList[0]);
             setOriginalSelectedCategory(result.categoryList[0]);
             
-            const selectedVenueData = {
+            const selectedVenueData:selectedVenueI = {
               id: result.venueId.id,
               name: result.venueId.name,
             }
+            
             setSelectedVenue(selectedVenueData);
             setOriginalSelectedVenue(selectedVenueData);
 
