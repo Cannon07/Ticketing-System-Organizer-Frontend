@@ -26,7 +26,7 @@ export const ConnectWallet = () => {
   const { account, accounts, setAccount, connect, disconnect } = useWallet();
   const installedWallets = useInstalledWallets();
   const uninstalledWallets = useUninstalledWallets();
-  const {setHasAccount, setWalletAddress, connectLoading, setConnectLoading, setOrganizerData } = useGlobalContext();
+  const { connectLoading, setConnectLoading, setOrganizerData } = useGlobalContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -48,6 +48,13 @@ export const ConnectWallet = () => {
   const allWallets: WalletList[] = installedWalletsData.concat(uninstalledWalletsData)
   let accountsList: AccountList[] = [];
   let currentAccount: AccountList;
+
+
+  
+  // useEffect(()=>{
+  //   setHasAccount(true);
+  //   setWalletAddress(account?.address);
+  // },[account])
 
 
   useEffect (() => {
@@ -146,11 +153,8 @@ export const ConnectWallet = () => {
     )
   } else {
 
-    setHasAccount(true);
-    setWalletAddress(account?.address);
+
     const disconnectWallet=()=>{
-      setHasAccount(false);
-      setWalletAddress('');
       disconnect();
       setOrganizerData(null);
     }

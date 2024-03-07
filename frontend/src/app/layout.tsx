@@ -7,7 +7,6 @@ import Footer from "@/partials/Footer";
 import Header from "@/partials/Header";
 import Providers from "@/partials/Providers";
 import "@/styles/main.scss";
-import LocationModal from "@/components/LocationModal";
 import RegisterModal from "@/components/RegisterModal";
 import React from "react";
 import { ToastConfig } from "./toast-config";
@@ -68,7 +67,6 @@ export default function RootLayout({
         <Providers>
           <Header/>
           <SearchModal />
-          <LocationModal />
           <RegisterModal />
           <ToastConfig/>
           <main>{children}</main>

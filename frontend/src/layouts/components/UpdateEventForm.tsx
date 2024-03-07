@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
-import NotConnected from '@/app/not-connected';
 import { useRouter } from 'next/navigation';
 import { SelectArtistDropdown } from './SelectArtistsDropdown';
 import { SelectVenueDropdown } from './SelectVenueDropdown';
@@ -12,7 +11,7 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { useContract, useTx } from 'useink';
+import { useContract, useTx, useWallet } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
@@ -22,10 +21,8 @@ import { SelectCityDropdown } from './SelectCityDropdown';
 import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
 import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
-import { GetEventById, PostEvent, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
+import { GetEventById, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
-import { resourceLimits } from 'worker_threads';
-import { RESPONSE_LIMIT_DEFAULT } from 'next/dist/server/api-utils';
 
 
 interface venueInterface {
@@ -77,7 +74,8 @@ interface IdProps{
 const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
     const router = useRouter();
-    const { hasAccount, organizerData } = useGlobalContext();
+    const { organizerData } = useGlobalContext();
+    const {account} = useWallet();
 
     const contract = useContract(CONTRACT_ADDRESS || '', metadata);
 
@@ -488,7 +486,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         e.preventDefault();
 
      
-        if(!hasAccount){
+        if(!account){
           toast.dismiss()
           toast.error('You are not connected to wallet!')
         }

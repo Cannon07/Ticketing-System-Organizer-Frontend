@@ -3,24 +3,22 @@
 import CreateEventForm from "@/components/CreateEventForm";
 import OrganizerPageHeader from "@/partials/OrganizerPageHeader";
 import { useGlobalContext } from "../context/globalContext";
-import NotConnected from "../not-connected";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import NotRegistered from "../not-registered";
+
 
 
 
 const CreateEvent = () => {
     
-    const {organizerData, hasAccount} = useGlobalContext()
+    const {organizerData } = useGlobalContext()
     
-    const router = useRouter()
 
-    
-    // if (!hasAccount) return <NotConnected />
 
 
     return (
         <>  
-        
             {organizerData? <div>
             <OrganizerPageHeader title={"Create Event"} />
             <section className="section-sm">
@@ -30,7 +28,7 @@ const CreateEvent = () => {
                     </div>
                 </div>
             </section> 
-            </div>:router.push('/register-organizer')
+            </div>:<NotRegistered/>
             }
         </>
     );

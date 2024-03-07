@@ -10,7 +10,7 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
-import { useContract, useTx } from 'useink';
+import { useContract, useTx, useWallet } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
@@ -69,8 +69,9 @@ interface selectedVenueI {
 
 const CreateEventForm = () => {
 
-  const { hasAccount, organizerData } = useGlobalContext();
+  const { organizerData } = useGlobalContext();
   const contract = useContract(CONTRACT_ADDRESS, metadata);
+  const {account} = useWallet();
 
   const registerEvent = useTx(contract, 'registerEvent');
   useTxNotifications(registerEvent);
@@ -357,7 +358,7 @@ const CreateEventForm = () => {
 
   const handleCreateEvent = (e: any) => {
     e.preventDefault();
-    if(!hasAccount){
+    if(!account){
       toast.dismiss()
       toast.error('You are not connected to wallet!')
     }

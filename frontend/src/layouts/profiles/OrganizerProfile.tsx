@@ -111,8 +111,6 @@ const OrganizerProfile = () => {
 
     }
 
-
-
     useEffect(() => {
         setTab('Hosted Events');
         setImage(organizerData?.profileImg)

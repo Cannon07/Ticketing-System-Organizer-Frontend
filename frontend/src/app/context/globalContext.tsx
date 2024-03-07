@@ -15,12 +15,6 @@ interface OrganizerData {
 }
 
 interface ContextProps{
-    selectedCity: string,
-    setSelectCity: Dispatch<SetStateAction<string>>,
-    walletAddress: string,
-    setWalletAddress: Dispatch<SetStateAction<string>>,
-    hasAccount: boolean,
-    setHasAccount: Dispatch<SetStateAction<boolean>>,
     connectLoading: boolean,
     setConnectLoading: Dispatch<SetStateAction<boolean>>,
     organizerData: OrganizerData | null,
@@ -28,12 +22,6 @@ interface ContextProps{
 }
 
 const GlobalContext = createContext<ContextProps>({
-    selectedCity: "",
-    setSelectCity: (): string=>'',
-    walletAddress: "",
-    setWalletAddress: (): string=>'',
-    hasAccount: false,
-    setHasAccount: (): boolean=>false,
     connectLoading: false,
     setConnectLoading: (): boolean=>false,
     organizerData: null,
@@ -45,15 +33,12 @@ interface GlobalContextProviderProps{
 }
 
 export const GlobalContextProvider = ({children}:GlobalContextProviderProps)=>{
-    const city=localStorage.getItem('city')?localStorage.getItem('city'):"";
-    const [selectedCity,setSelectCity] = useState(city?city.toString():"");
-    const [walletAddress,setWalletAddress] = useState('');
-    const [hasAccount,setHasAccount] = useState(false);
+    
     const [connectLoading, setConnectLoading] = useState(false);
     const [organizerData, setOrganizerData] = useState<OrganizerData | null>(null);
 
     return (
-        <GlobalContext.Provider value = {{selectedCity,setSelectCity,walletAddress,setWalletAddress,hasAccount,setHasAccount,connectLoading,setConnectLoading,organizerData,setOrganizerData}}>
+        <GlobalContext.Provider value = {{connectLoading,setConnectLoading,organizerData,setOrganizerData}}>
 
             {children}
 

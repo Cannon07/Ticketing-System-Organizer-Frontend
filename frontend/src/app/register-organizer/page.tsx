@@ -2,26 +2,18 @@
 
 import OrganizerRegistrationForm from "@/components/OrganizerRegistrationForm";
 import OrganizerPageHeader from "@/partials/OrganizerPageHeader";
-import { useGlobalContext } from "../context/globalContext";
 import NotConnected from "../not-connected";
-import { useEffect } from "react";
+import { useWallet } from "useink";
 
 
 
 
 const OrganizerRegistration = () => {
 
-    const {hasAccount,organizerData} = useGlobalContext()
-
-    // useEffect(()=>{
-
-    //     if(!hasAccount){
-    //         return <NotConnected/>
-    //     }
-    // },[hasAccount])
+   const {account} = useWallet();
 
     return (
-        <>{hasAccount?
+        <>{account?
            <div>
             <OrganizerPageHeader title={"Organizer Registration"} />
             <section className="section-sm">

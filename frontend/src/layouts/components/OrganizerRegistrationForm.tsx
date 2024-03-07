@@ -28,8 +28,8 @@ const OrganizerRegistrationForm = () => {
 
     // const [aadharError, setAadharError] = useState(false);
     
-    const { walletAddress, setConnectLoading, organizerData } = useGlobalContext();
-    const { disconnect } = useWallet();
+    const { setConnectLoading, organizerData } = useGlobalContext();
+    const { account ,disconnect } = useWallet();
     const router = useRouter()
 
     const contract = useContract(CONTRACT_ADDRESS, metadata);
@@ -102,7 +102,7 @@ const OrganizerRegistrationForm = () => {
           "name": fullName,
           "email": email,
           "govId": aadharNumber,
-          "walletId": walletAddress,
+          "walletId": account?.address,
           "transactionId": txId,
           "profileImg": imageUrl,
         });
@@ -173,7 +173,7 @@ const OrganizerRegistrationForm = () => {
              toast.error("Please upload Profile Image");
         }
         else {
-          const hashData = generateHash([walletAddress,fullName,email,aadharNumber,file])
+          const hashData = generateHash([account?.address,fullName,email,aadharNumber,file])
           registerOrganizer.signAndSend([hashData]);
             
         }
@@ -209,7 +209,7 @@ const OrganizerRegistrationForm = () => {
                         id="address"
                         name="address"
                         className="form-input-disable"
-                        value={walletAddress}
+                        value={account?.address}
                         type="text"
                         required
                     />
