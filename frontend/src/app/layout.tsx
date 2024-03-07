@@ -1,5 +1,4 @@
 
-import SearchModal from "@/components/SearchModal";
 import config from "@/config/config.json";
 import theme from "@/config/theme.json";
 import TwSizeIndicator from "@/helpers/TwSizeIndicator";
@@ -7,7 +6,6 @@ import Footer from "@/partials/Footer";
 import Header from "@/partials/Header";
 import Providers from "@/partials/Providers";
 import "@/styles/main.scss";
-import RegisterModal from "@/components/RegisterModal";
 import React from "react";
 import { ToastConfig } from "./toast-config";
 
@@ -66,8 +64,6 @@ export default function RootLayout({
         <TwSizeIndicator />
         <Providers>
           <Header/>
-          <SearchModal />
-          <RegisterModal />
           <ToastConfig/>
           <main>{children}</main>
           <Footer />
