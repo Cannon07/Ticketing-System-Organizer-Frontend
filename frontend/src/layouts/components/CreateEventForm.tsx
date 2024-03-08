@@ -23,6 +23,7 @@ import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
 import { PostOrganizerEvent } from '@/constants/endpoints/OrganizerEndpoints';
 import { ImageSelectorC } from './ImageSelectorC';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -73,6 +74,7 @@ const CreateEventForm = () => {
   const { organizerData } = useGlobalContext();
   const contract = useContract(CONTRACT_ADDRESS, metadata);
   const {account} = useWallet();
+  const router = useRouter();
 
   const registerEvent = useTx(contract, 'registerEvent');
   useTxNotifications(registerEvent);
@@ -261,6 +263,8 @@ const CreateEventForm = () => {
       setFilebg(undefined)
       toast.dismiss();
       toast.success('Event created successfully!');
+      router.push('/organizer-profile')
+      
     }
     else {
       toast.dismiss();

@@ -86,19 +86,22 @@ const PastHostingsCard: React.FC<eventDataProps> = ({ eventsData }) => {
     }
 
 
+    console.log("eventsData ",eventsData)
 
 
     return (
 
         <>
-            {eventsData ? eventsData.map((eventData) => (
+            {eventsData.length>1 ? eventsData.map((eventData) => (
 
-                <div key={eventData.id} className="px-3 pb-3 flex items-center justify-center grayscale">
+
+                <div key={eventData.id} className="pl-3 pb-3 flex items-center justify-center grayscale">                    
                     <div className="rounded bg-theme-light p-8 dark:bg-darkmode-theme-light relative  h-full w-auto">
-                        <div key={eventData.id} className={"flex flex-col items-center gap-4"}>
+                        
+                        <div className={"flex flex-col items-center gap-4"}>
 
 
-                            <div className=' max-w-full max-h-96 overflow-hidden object-cover'>
+                            <div className=' max-w-full max-h-96 overflow-hidden object-cover rounded'>
                                 <Image
                                     height={200}
                                     width={1200}
@@ -156,7 +159,7 @@ const PastHostingsCard: React.FC<eventDataProps> = ({ eventsData }) => {
 
                     </div>
                 </div>
-            )) : <div><Loader /></div>
+            )) : <h3 className='flex items-center justify-center pt-40'>Past Hosted Events Not Found</h3>
             }
 
 

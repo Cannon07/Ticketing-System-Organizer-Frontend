@@ -196,7 +196,7 @@ const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, p
     };
 
     return (
-        <div className="h-full w-full">
+        <div className="h-full w-full pl-3">
             <div className="bg-theme-light dark:bg-darkmode-theme-light overflow-hidden shadow rounded-lg h-full w-full flex items-center justify-center">
                 <div className="p-8 rounded shadow-md w-full">
                     <h1 className="text-2xl font-semibold mb-4 text-center">Profile Settings</h1>

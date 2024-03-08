@@ -269,10 +269,6 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             setImage2(result.imageUrls[1])
           
 
-            // router.push('/organizer-profile')
-                
-
-
         } catch (error) {
             toast.dismiss()
             toast.error('Failed to fetch event')
@@ -323,9 +319,11 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         selectedArtists?.map((artist) => (
           artistArray.push(artist.id)
         ))
+
+
     
-        let primaryImgPromise = postImg(file);
-        let bgImgPromise = postImg(filebg);
+        let primaryImgPromise = file===undefined?image1:postImg(file);
+        let bgImgPromise = file===undefined?image2:postImg(filebg);
         let [primaryImg, bgImg] = await Promise.all([primaryImgPromise, bgImgPromise]);
         var images = [primaryImg, bgImg];
     
@@ -362,7 +360,6 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         console.log(result)
     
         if (response.ok) {
-        
           setEventTitle('')
           setEventDate('')
           setEventTime('')
