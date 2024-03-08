@@ -7,10 +7,9 @@ interface ImageProps {
   title: string,
   file: File | undefined,
   setFile: React.Dispatch<React.SetStateAction<File | undefined>>,
-  imageU: string,
 }
 
-export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imageU }) => {
+export const ImageSelectorC: React.FC<ImageProps> = ({ title, file, setFile }) => {
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("Upload Image");
 
@@ -25,12 +24,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imag
       setFileName("Upload Image")
     }
   }
-  useEffect(()=>{
-    if(file===undefined){
-      setImage(imageU)
-    }
-  },[imageU])
-
+  
   useEffect(()=>{
     if(file===undefined){
       let upload_input = document.getElementById(title) as any;

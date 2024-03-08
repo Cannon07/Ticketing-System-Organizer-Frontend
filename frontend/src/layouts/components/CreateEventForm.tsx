@@ -22,6 +22,7 @@ import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
 import { PostOrganizerEvent } from '@/constants/endpoints/OrganizerEndpoints';
+import { ImageSelectorC } from './ImageSelectorC';
 
 
 
@@ -411,7 +412,7 @@ const CreateEventForm = () => {
     else {
 
 
-      const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedVenue, selectedCategory])
+      const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedCategory])
      
 
 
@@ -610,7 +611,7 @@ const CreateEventForm = () => {
         </div>
 
         <div className='mb-4'>
-          <ImageSelector
+          <ImageSelectorC
             title={"Primary Image"}
             file={file}
             setFile={setFile}
@@ -618,7 +619,7 @@ const CreateEventForm = () => {
         </div>
 
         <div className='mb-4'>
-          <ImageSelector
+          <ImageSelectorC
             title={"Background Image"}
             file={filebg}
             setFile={setFilebg}

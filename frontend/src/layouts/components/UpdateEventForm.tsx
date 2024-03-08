@@ -23,6 +23,7 @@ import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetEventById, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
+import { stringify } from 'querystring';
 
 
 interface venueInterface {
@@ -153,6 +154,9 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     const [originalSelectedCategory,setOriginalSelectedCategory] = useState('');
     const [originalSelectedCity, setOriginalSelectedCity] = useState('');
 
+    const [image1, setImage1] = useState('')
+    const [image2, setImage2] = useState('')
+
     
     const [categoryNames, setCategoryNames] = useState<string[]>(
         [
@@ -229,13 +233,20 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             setSelectedCategory(result.categoryList[0]);
             setOriginalSelectedCategory(result.categoryList[0]);
             
+            const vid:string = result.venueId.id;
+            const vname:string = result.venueId.name;
+
             const selectedVenueData:selectedVenueI = {
-              id: result.venueId.id,
-              name: result.venueId.name,
+              id: vid,
+              name: vname,
             }
-            
+
             setSelectedVenue(selectedVenueData);
             setOriginalSelectedVenue(selectedVenueData);
+
+            console.log("svd: ",selectedVenueData)
+            console.log("sv: ",selectedVenue)
+            console.log("osv: ",originalSelectedVenue)
 
 
             setTiers(result.tiers);
@@ -253,6 +264,9 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
             setSelectedArtists(selectedArtistData);
             setOriginalSelectedArtists(selectedArtistData);
+
+            setImage1(result.imageUrls[0])
+            setImage2(result.imageUrls[1])
           
 
             // router.push('/organizer-profile')
@@ -262,7 +276,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         } catch (error) {
             toast.dismiss()
             toast.error('Failed to fetch event')
-            console.log("Error loading artists: ", error);
+            console.log("Error loading event: ", error);
         }
     }
 
@@ -477,9 +491,9 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     };
 
     
-    const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalSelectedArtists], originalSelectedVenue, originalSelectedCategory])
+    const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalSelectedArtists], originalSelectedCategory])
 
-    const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, originalAboutEvent, [...selectedArtists], selectedVenue, selectedCategory])
+    const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, originalAboutEvent, [...selectedArtists], selectedCategory])
 
 
 
@@ -735,6 +749,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               title={"Primary Image"}
               file={file}
               setFile={setFile}
+              imageU={image1}
             />
           </div>
   
@@ -743,6 +758,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               title={"Background Image"}
               file={filebg}
               setFile={setFilebg}
+              imageU = {image2}
             />
           </div>
   

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useGlobalContext } from '@/app/context/globalContext';
-import NotConnected from '@/app/not-connected';
 import { useContract, useTx, useWallet } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import { CONTRACT_ADDRESS } from '@/constants/contract_constants/ContractAddress';
@@ -16,6 +15,18 @@ import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 
 
 
+interface OrganizerDataI {
+    id: string,
+    name: string,
+    email: string,
+    govId: string,
+    walletId: string,
+    transactionId: string,
+    organisedEvents: string[]
+    profileImg: string,
+  }
+  
+
 
 
 
@@ -28,9 +39,10 @@ const OrganizerRegistrationForm = () => {
 
     // const [aadharError, setAadharError] = useState(false);
     
-    const { setConnectLoading, organizerData } = useGlobalContext();
+    const { setConnectLoading, setOrganizerData } = useGlobalContext();
     const { account ,disconnect } = useWallet();
     const router = useRouter()
+
 
     const contract = useContract(CONTRACT_ADDRESS, metadata);
 
@@ -68,7 +80,6 @@ const OrganizerRegistrationForm = () => {
                 let register_toast = toast.loading('Registering Organizer..')
                 uploadImage(txId);
                 toast.dismiss(register_toast);
-                router.push('/')
             }
             setConnectLoading(false)
             
@@ -94,7 +105,7 @@ const OrganizerRegistrationForm = () => {
 
 
 
-    const saveOrganizer = async (txId: String, imageUrl: String) => {
+    const saveOrganizer = async (txId: string, imageUrl: string) => {
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
   
@@ -124,6 +135,21 @@ const OrganizerRegistrationForm = () => {
           setEmail("");
           setAadharNumber("");
           setFile(undefined);
+
+          const orgData:OrganizerDataI = {
+                id: "123",
+                name: fullName,
+                email: email,
+                govId: aadharNumber,
+                walletId: account?.address || '',
+                transactionId: txId,
+                organisedEvents: [],
+                profileImg: imageUrl,
+          }
+
+          setOrganizerData(orgData);
+          router.push('/')
+          
         }
         else{
             toast.dismiss()
@@ -131,7 +157,7 @@ const OrganizerRegistrationForm = () => {
         }
     }
   
-    const uploadImage = async (txId: String) => {
+    const uploadImage = async (txId: string) => {
       if (typeof(file) === 'undefined') return;
   
       var formdata = new FormData();
