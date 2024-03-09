@@ -47,6 +47,7 @@ const Logo = ({ src }: { src?: string }) => {
             height: logo_height.replace("px", "") + "px",
             width: logo_width.replace("px", "") + "px",
           }}
+          
         />
       ) : logo_text ? (
         logo_text

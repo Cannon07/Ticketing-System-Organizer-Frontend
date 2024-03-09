@@ -92,7 +92,7 @@ const PastHostingsCard: React.FC<eventDataProps> = ({ eventsData }) => {
     return (
 
         <>
-            {eventsData.length>1 ? eventsData.map((eventData) => (
+            {eventsData.length>0 ? eventsData.map((eventData) => (
 
 
                 <div key={eventData.id} className="pl-3 pb-3 flex items-center justify-center grayscale">                    

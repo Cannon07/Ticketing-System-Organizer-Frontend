@@ -201,7 +201,7 @@ const OrganizerProfile = () => {
                         </div>
                         <div className="hidden lg:contents">
 
-                            <aside className="w-full px-3 relative">
+                            <aside className="w-full pr-3 relative">
                                 <div className="lg:sticky lg:top-28 h-fit w-full px-3 py-4 overflow-y-auto bg-theme-light dark:bg-darkmode-theme-light rounded-lg  lg:border lg:border-border lg:dark:border-darkmode-border">
                                     <ul className="space-y-2 font-medium">
 
