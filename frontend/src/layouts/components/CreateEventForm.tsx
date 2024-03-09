@@ -79,7 +79,6 @@ const CreateEventForm = () => {
   const registerEvent = useTx(contract, 'registerEvent');
   useTxNotifications(registerEvent);
 
- 
 
 
   useEffect(() => {

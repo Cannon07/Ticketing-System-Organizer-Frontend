@@ -92,7 +92,7 @@ const PastHostingsCard: React.FC<eventDataProps> = ({ eventsData }) => {
     return (
 
         <>
-            {eventsData.length>0 ? eventsData.map((eventData) => (
+            {eventsData.map((eventData) => (
 
 
                 <div key={eventData.id} className="pl-3 pb-3 flex items-center justify-center grayscale">                    
@@ -159,10 +159,7 @@ const PastHostingsCard: React.FC<eventDataProps> = ({ eventsData }) => {
 
                     </div>
                 </div>
-            )) : <h3 className='flex items-center justify-center pt-40'>Past Hosted Events Not Found</h3>
-            }
-
-
+            ))}
         </>
     )
 

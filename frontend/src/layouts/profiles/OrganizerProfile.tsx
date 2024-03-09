@@ -8,6 +8,8 @@ import HostedEventsCard from "@/components/HostedEventsCard";
 import PastHostingsCard from "@/components/PastHostingsCard";
 import { useGlobalContext } from "@/app/context/globalContext";
 import { GetOrganizerEvents } from "@/constants/endpoints/OrganizerEndpoints";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface artistI {
     id: string,
@@ -53,6 +55,7 @@ interface eventsDataI {
 const OrganizerProfile = () => {
 
     const { organizerData } = useGlobalContext();
+    const router = useRouter();
     const [tab, setTab] = useState('Hosted Events')
     const [image, setImage] = useState(organizerData?.profileImg);
     const [eventsData, setEventsData] = useState<eventsDataI[]>([])
@@ -94,6 +97,8 @@ const OrganizerProfile = () => {
 
     const getEventsByOrganzer = async () => {
 
+        toast.loading("Fetching organizer's events..",{id:"EventsFetchingLoading"} )
+
         var requestOptions = {
             method: 'GET',
         };
@@ -104,9 +109,17 @@ const OrganizerProfile = () => {
 
         if (response.ok) {
             setEventsData(result);
+
+            toast.dismiss();
+            toast.success("Events Fetched Successfully!", {id:"EventsFetchingSuccess"});
+            if(result.length<1){
+                toast.dismiss()
+                toast.error("No Events Found!", {id:"NoEventsFound"})
+            }
         }
         else {
-            console.log("error fetching events")
+            toast.dismiss();
+            toast.error("Error Fetching Events!", {id:"EventsFetchingFailure"})
         }
 
     }
@@ -115,7 +128,7 @@ const OrganizerProfile = () => {
         setTab('Hosted Events');
         setImage(organizerData?.profileImg)
         getEventsByOrganzer();
-    }, [organizerData])
+    }, [organizerData?.walletId])
 
     return (
         <div className="section-sm">
@@ -283,15 +296,60 @@ const OrganizerProfile = () => {
                             {
                                 tab === 'Hosted Events' ? (
 
-                                    <div className="flex justify-center items-center flex-wrap">
-                                        <HostedEventsCard eventsData={upcomingEvents} />
+                                    <div className="flex justify-center items-center h-full flex-wrap">
+
+
+                                        {upcomingEvents.length != 0 ?
+
+                                            <HostedEventsCard eventsData={upcomingEvents} />
+
+                                            :
+                                            <div className={"p-8 flex flex-col items-center"}>
+                                                <h1 className="h2 text-center">No Events Found</h1>
+                                                <div className="content flex flex-col items-center">
+                                                    <p className="mb-0 text-center">
+                                                        Oops! It seems you haven&apos;t created any events yet.
+                                                    </p>
+                                                    <p className="mt-0 text-center">
+                                                        Visit our create event page and create your events now.
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    className="btn-sm btn-primary"
+                                                    onClick={() => { router.push('/create-event') }}
+                                                >
+                                                    Explore Now
+                                                </button>
+                                            </div>
+                                        }
+
                                     </div>
 
                                 ) : (
                                     tab === 'Past Hostings' ? (
-                                        <div className="flex justify-center items-center flex-wrap">
-                                            <PastHostingsCard eventsData={pastEvents} />
+                                        <div className="flex justify-center items-center h-full flex-wrap">
 
+                                            {pastEvents.length != 0 ?
+                                                <PastHostingsCard eventsData={pastEvents} />
+                                                :
+                                                <div className={"p-8 flex flex-col items-center"}>
+                                                    <h1 className="h2 text-center">No Events Found</h1>
+                                                    <div className="content flex flex-col items-center">
+                                                        <p className="mb-0 text-center">
+                                                            It looks like you haven&apos;t created any events in the past.
+                                                        </p>
+                                                        <p className="mt-0 text-center">
+                                                            Visit our create event page and create your events now.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        className="btn-sm btn-primary"
+                                                        onClick={() => { router.push('/create-event') }}
+                                                    >
+                                                        Explore Now
+                                                    </button>
+                                                </div>
+                                            }
                                         </div>
 
                                     ) : (
@@ -325,7 +383,7 @@ const OrganizerProfile = () => {
                 </div>
             </div>
 
-        </div>
+        </div >
     )
 }
 

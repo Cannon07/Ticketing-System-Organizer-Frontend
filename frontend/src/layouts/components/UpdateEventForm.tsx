@@ -490,7 +490,8 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     
     const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalSelectedArtists], originalSelectedCategory])
 
-    const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, originalAboutEvent, [...selectedArtists], selectedCategory])
+    const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedCategory])
+
 
 
 
