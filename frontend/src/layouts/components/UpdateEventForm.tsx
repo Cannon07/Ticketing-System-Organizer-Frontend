@@ -541,6 +541,13 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           toast.dismiss();
           toast.error('The About section requires a minimum of 50 words.');
         }
+        else if (file === undefined) {
+          toast.dismiss();
+          toast.error('Please upload primary image');
+        } else if (filebg === undefined) {
+          toast.dismiss();
+          toast.error('Please upload background image');
+        }
         else {
 
 

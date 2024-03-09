@@ -28,6 +28,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imag
   useEffect(()=>{
     if(file===undefined){
       setImage(imageU)
+      setFileName("Delete Image")
     }
   },[imageU])
 
