@@ -10,6 +10,18 @@ import toast from 'react-hot-toast';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { UpdateOrganizerById } from '@/constants/endpoints/OrganizerEndpoints';
 
+interface OrganizerDataProps {
+    id: string,
+    name: string,
+    email: string,
+    govId: string,
+    walletId: string,
+    transactionId: string,
+    organisedEvents: string[]
+    profileImg: string,
+  }
+
+
 interface organizerDataI {
     id: string | undefined,
     name: string | undefined,
@@ -19,15 +31,19 @@ interface organizerDataI {
     transactionId: string | undefined,
     walletId: string | undefined,
     originalImage: string | undefined,
-    setImage: React.Dispatch<React.SetStateAction<string | undefined>>
+    setImage: React.Dispatch<React.SetStateAction<string | undefined>>,
+    organizedEvents: string[] | undefined,
+    setOrganizerData: React.Dispatch<React.SetStateAction<OrganizerDataProps | null>>
 
 }
 
-const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, profileImg, govId, transactionId, walletId, originalImage, setImage }) => {
+const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, profileImg, govId, transactionId, walletId, originalImage, setImage, organizedEvents,setOrganizerData }) => {
 
     const contract = useContract(CONTRACT_ADDRESS, metadata);
+   
     const updateOrganizer = useTx(contract, 'updateOrganizer');
     useTxNotifications(updateOrganizer);
+
 
 
     useEffect(() => {
@@ -160,6 +176,19 @@ const OrganizerProfileSettings: React.FC<organizerDataI> = ({ id, name, email, p
           toast.dismiss()
           toast.success("Organizer Updated!")
           setLoading(false)
+          const orgData = {
+                id: id ? id.toString() : "",
+                name: orgName ? orgName.toString() : "",
+                email: orgEmail ? orgEmail.toString() : "",
+                govId: identity ? identity.toString() : "",
+                walletId: walletId ? walletId.toString() : "",
+                transactionId: txId ? txId.toString() : "",
+                organisedEvents:  Array.isArray(organizedEvents) ? organizedEvents : (organizedEvents ? [organizedEvents] : []),
+                profileImg: imageUrl ? imageUrl.toString() : "",
+            };
+
+          setOrganizerData(orgData);
+
         }
     }
 

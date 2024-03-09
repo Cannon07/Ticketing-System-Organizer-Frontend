@@ -54,7 +54,7 @@ interface eventsDataI {
 
 const OrganizerProfile = () => {
 
-    const { organizerData } = useGlobalContext();
+    const { organizerData,setOrganizerData } = useGlobalContext();
     const router = useRouter();
     const [tab, setTab] = useState('Hosted Events')
     const [image, setImage] = useState(organizerData?.profileImg);
@@ -63,6 +63,7 @@ const OrganizerProfile = () => {
 
     const [upcomingEvents, setUpcomingEvents] = useState<eventsDataI[]>([]);
     const [pastEvents, setPastEvents] = useState<eventsDataI[]>([]);
+
 
     const filterEvents = (events: eventsDataI[]) => {
 
@@ -367,6 +368,8 @@ const OrganizerProfile = () => {
                                                     walletId={organizerData?.walletId}
                                                     originalImage={image}
                                                     setImage={setImage}
+                                                    organizedEvents = {organizerData?.organisedEvents}
+                                                    setOrganizerData = {setOrganizerData}
                                                 />
 
                                             </div>

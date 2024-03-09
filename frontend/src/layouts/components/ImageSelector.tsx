@@ -8,9 +8,10 @@ interface ImageProps {
   file: File | undefined,
   setFile: React.Dispatch<React.SetStateAction<File | undefined>>,
   imageU: string,
+  setImageU: React.Dispatch<React.SetStateAction<string>>,
 }
 
-export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imageU }) => {
+export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imageU, setImageU }) => {
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("Upload Image");
 
@@ -23,6 +24,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imag
       upload_input.value = "";
       setImage("");
       setFileName("Upload Image")
+      setImageU("");
     }
   }
   useEffect(()=>{
@@ -37,6 +39,7 @@ export const ImageSelector: React.FC<ImageProps> = ({ title, file, setFile, imag
       let upload_input = document.getElementById(title) as any;
       upload_input.value = "";
       setImage("");
+      setImageU("");
       setFileName("Upload Image")
     }
   },[file])

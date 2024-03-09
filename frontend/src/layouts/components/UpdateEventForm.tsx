@@ -187,6 +187,12 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         }
     }, [selectedCity])
 
+    useEffect(()=>{
+      if(organizerData===null){
+        router.push('/');
+      }
+    },[organizerData?.walletId])
+
     
     const getEventById = async()=>{
         try {
@@ -541,16 +547,14 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           toast.dismiss();
           toast.error('The About section requires a minimum of 50 words.');
         }
-        else if (file === undefined) {
+        else if (file === undefined && image1==='') {
           toast.dismiss();
           toast.error('Please upload primary image');
-        } else if (filebg === undefined) {
+        } else if (filebg === undefined && image2==='') {
           toast.dismiss();
           toast.error('Please upload background image');
         }
         else {
-
-
             var tiersList: string[] = [];
             var tiersCapacity: number[] = []
             tiers.forEach((tier) => {
@@ -559,9 +563,6 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             });
             updateEvent.signAndSend([previousHash, newHash]);
         }
-
-        
-
 
     }
 
@@ -755,6 +756,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               file={file}
               setFile={setFile}
               imageU={image1}
+              setImageU={setImage1}
             />
           </div>
   
@@ -764,6 +766,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               file={filebg}
               setFile={setFilebg}
               imageU = {image2}
+              setImageU = {setImage2}
             />
           </div>
   
