@@ -7,7 +7,6 @@ import { SelectArtistDropdown } from './SelectArtistsDropdown';
 import { SelectVenueDropdown } from './SelectVenueDropdown';
 import AddNewArtistModal from './AddNewArtistModal';
 import AddNewVenueModal from './AddNewVenueModal';
-import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
@@ -23,7 +22,7 @@ import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetEventById, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
-import { stringify } from 'querystring';
+import AddNewTierModal from './AddNewTierModal';
 
 
 interface venueInterface {
@@ -570,8 +569,6 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
-          previous: {previousHash} <br />
-          new: {newHash}
           
         <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
           <div className="mb-4">
@@ -694,13 +691,9 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
                         <div
                           key={index}
                           className='btn btn-outline-primary flex gap-4 justify-center items-center'
-                          onClick={() => {
-                            const newTiers = tiers?.filter((filterTier) => (filterTier !== tier))
-                            setTiers(newTiers)
-                          }}
+
                         >
                           {tier.name}
-                          <IoClose size={20} />
                         </div>
                       )
                     })
@@ -709,7 +702,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
                   }
                 </div>
   
-                <button className='btn btn-primary' data-add-tier-trigger>
+                <button disabled className='btn btn-primary' data-add-tier-trigger>
                   Add Seat Tier
                 </button>
               </div>
