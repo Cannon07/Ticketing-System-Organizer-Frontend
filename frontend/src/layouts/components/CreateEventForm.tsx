@@ -10,6 +10,8 @@ import AddNewTierModal from './AddNewTierModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
+import { SelectVerificationModeDropdown } from './SelectVerificationModeDropdown';
+import { SelectIssuersDropdown } from './SelectIssuersDropdown';
 import { useContract, useTx, useWallet } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
@@ -18,6 +20,7 @@ import { generateHash } from '@/lib/utils/hashGenerator';
 import toast from 'react-hot-toast';
 import { SelectCityDropdown } from './SelectCityDropdown';
 import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
+import { GetIssuersByType } from '@/constants/ssi_endpoints/IssuerEndpoints';
 import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
@@ -34,6 +37,11 @@ interface venueInterface {
   id: string,
   name: string,
   placeId: string,
+}
+
+interface issuerInterface {
+  name: string,
+  did: string,
 }
 
 
@@ -55,6 +63,11 @@ interface artistInterface {
 interface selectedArtistsI {
   id: string,
   name: string,
+}
+
+interface selectedIssuersI {
+  name: string,
+  did: string,
 }
 
 
@@ -130,10 +143,15 @@ const CreateEventForm = () => {
 
   const [selectedArtists, setSelectedArtists] = useState<selectedArtistsI[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<selectedVenueI>();
+
+  const [selectedIssuers, setSelectedIssuers] = useState<selectedIssuersI[]>([]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedVerificationMode, setSelectedVerificationMode] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState('');
 
   const [venueData, setVenueData] = useState<venueInterface[]>([])
+  const [issuerData, setIssuerData] = useState<issuerInterface[]>([])
   const [artistData, setArtistData] = useState<artistInterface[]>([])
 
   const [file, setFile] = useState<File | undefined>();
@@ -155,6 +173,15 @@ const CreateEventForm = () => {
     ]
   )
 
+  const [verificationMode, setVerificationMode] = useState<string[]>(
+    [
+      'AgeVerification',
+      'StudentVerification',
+      'Both',
+      'General',
+    ]
+  )
+
   useEffect(() => {
 
     if (selectedCity !== '') {
@@ -162,6 +189,13 @@ const CreateEventForm = () => {
       setSelectedVenue(undefined)
     }
   }, [selectedCity])
+
+  useEffect(() => {
+    if (selectedVerificationMode !== '') {
+      getIssuersByType();
+      setSelectedIssuers([]);
+    }
+  }, [selectedVerificationMode])
 
   useEffect(() => {
     getPlaces();
@@ -247,7 +281,7 @@ const CreateEventForm = () => {
     console.log(result)
 
     if (response.ok) {
-    
+
       setEventTitle('')
       setEventDate('')
       setEventTime('')
@@ -263,7 +297,7 @@ const CreateEventForm = () => {
       toast.dismiss();
       toast.success('Event created successfully!');
       router.push('/organizer-profile')
-      
+
     }
     else {
       toast.dismiss();
@@ -288,6 +322,24 @@ const CreateEventForm = () => {
 
     } catch (error) {
       console.log("Error loading venues: ", error);
+    }
+  }
+
+  const getIssuersByType = async () => {
+    try {
+      const res = await fetch(`${GetIssuersByType}${selectedVerificationMode}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch issuers");
+      }
+
+      let result = await res.json()
+
+      setIssuerData(result)
+
+      console.log(result);
+
+    } catch (error) {
+      console.log("Error loading issuers: ", error);
     }
   }
 
@@ -356,7 +408,7 @@ const CreateEventForm = () => {
   };
 
   console.log(eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedVenue, selectedCategory);
- 
+
 
 
 
@@ -416,7 +468,7 @@ const CreateEventForm = () => {
 
 
       const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedCategory])
-     
+
 
 
       var tiersList: string[] = [];
@@ -628,6 +680,24 @@ const CreateEventForm = () => {
             setFile={setFilebg}
           />
         </div>
+
+        <div className="mb-4">
+          <div className='flex flex-col gap-4'>
+            <SelectVerificationModeDropdown
+              verificationMode={verificationMode}
+              selectedVerificationMode={selectedVerificationMode}
+              setSelectedVerificationMode={setSelectedVerificationMode}
+            />
+          </div>
+        </div>
+
+        <div className='flex flex-col gap-4'>
+            <SelectIssuersDropdown
+              issuerData={issuerData}
+              selectedIssuers={selectedIssuers}
+              setSelectedIssuers={setSelectedIssuers}
+            />
+          </div>
 
         <div className="col-span-2 flex gap-4 pl-1">
           <button onClick={handleCreateEvent} type="submit" className="btn btn-primary">
