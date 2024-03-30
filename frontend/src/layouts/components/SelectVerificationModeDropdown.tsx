@@ -5,9 +5,10 @@ interface VerificatoinModeDetails {
   verificationMode: string[];
   selectedVerificationMode: string;
   setSelectedVerificationMode: React.Dispatch<React.SetStateAction<string>>;
+  status: boolean;
 }
 
-export const SelectVerificationModeDropdown: React.FC<VerificatoinModeDetails> = ({ verificationMode, selectedVerificationMode, setSelectedVerificationMode }) => {
+export const SelectVerificationModeDropdown: React.FC<VerificatoinModeDetails> = ({ verificationMode, selectedVerificationMode, setSelectedVerificationMode, status }) => {
 
 
   const [inputValue, setInputValue] = useState("")
@@ -20,7 +21,13 @@ export const SelectVerificationModeDropdown: React.FC<VerificatoinModeDetails> =
       </div>
       <div
         className="w-full form-input px-8 py-4 flex items-center justify-between rounded"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (status) {
+            setOpen(!open)
+          } else {
+            setOpen(false)
+          }
+        }}
       >
         {selectedVerificationMode === "" ? "Select the Verification Mode" : selectedVerificationMode}
         <FaAngleDown className={`${open && "rotate-180"}`}/>

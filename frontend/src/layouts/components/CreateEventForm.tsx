@@ -696,17 +696,19 @@ const CreateEventForm = () => {
               verificationMode={verificationMode}
               selectedVerificationMode={selectedVerificationMode}
               setSelectedVerificationMode={setSelectedVerificationMode}
+              status={true}
             />
           </div>
         </div>
 
         <div className='flex flex-col gap-4'>
-            <SelectIssuersDropdown
-              issuerData={issuerData}
-              selectedIssuers={selectedIssuers}
-              setSelectedIssuers={setSelectedIssuers}
-            />
-          </div>
+          <SelectIssuersDropdown
+            issuerData={issuerData}
+            selectedIssuers={selectedIssuers}
+            setSelectedIssuers={setSelectedIssuers}
+            status={true}
+          />
+        </div>
 
         <div className="col-span-2 flex gap-4 pl-1">
           <button onClick={handleCreateEvent} type="submit" className="btn btn-primary">

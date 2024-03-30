@@ -10,6 +10,8 @@ import AddNewVenueModal from './AddNewVenueModal';
 import { IoClose } from 'react-icons/io5';
 import { ImageSelector } from './ImageSelector';
 import { SelectCategoryDropdown } from './SelectCategoryDropdown';
+import { SelectVerificationModeDropdown } from './SelectVerificationModeDropdown';
+import { SelectIssuersDropdown } from './SelectIssuersDropdown';
 import { useContract, useTx, useWallet } from 'useink';
 import { useTxNotifications } from 'useink/notifications';
 import metadata from '@/constants/contract_constants/assets/TicketingSystem.json';
@@ -19,11 +21,22 @@ import toast from 'react-hot-toast';
 import { SelectCityDropdown } from './SelectCityDropdown';
 import { GetVenuesByCity } from '@/constants/endpoints/VenuesEndponts';
 import { GetArtists } from '@/constants/endpoints/ArtistEndpoints';
+import { GetIssuersByType } from '@/constants/ssi_endpoints/IssuerEndpoints';
 import { PostImage } from '@/constants/endpoints/ImageEndpoints';
 import { GetEventById, UpdateEventById } from '@/constants/endpoints/EventEndpoints';
 import { GetAllPlaces } from '@/constants/endpoints/CityEndpoints';
 import AddNewTierModal from './AddNewTierModal';
 
+
+interface issuerInterface {
+  name: string,
+  publicDid: string,
+}
+
+interface selectedIssuersI {
+  name: string,
+  publicDid: string,
+}
 
 interface venueInterface {
     address: string,
@@ -132,10 +145,14 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
     const [selectedArtists, setSelectedArtists] = useState<selectedArtistsI[]>([]);
     const [selectedVenue, setSelectedVenue] = useState<selectedVenueI>();
+    const [selectedIssuers, setSelectedIssuers] = useState<selectedIssuersI[]>([]);
+
     const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [selectedVerificationMode, setSelectedVerificationMode] = useState<string>('');
     const [selectedCity, setSelectedCity] = useState('');
 
     const [venueData, setVenueData] = useState<venueInterface[]>([])
+    const [issuerData, setIssuerData] = useState<issuerInterface[]>([])
     const [artistData, setArtistData] = useState<artistInterface[]>([])
 
     const [file, setFile] = useState<File | undefined>();
@@ -150,13 +167,18 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     const [originalTiers,setOriginalTiers] = useState<tierInterface[]>([]);
     const [originalSelectedArtists,setOriginalSelectedArtists] = useState<selectedArtistsI[]>([]);
     const [originalSelectedVenue,setOriginalSelectedVenue] = useState<selectedVenueI>();
+    const [originalSelectedIssuers, setOriginalSelectedIssuers] = useState<selectedIssuersI[]>([]);
     const [originalSelectedCategory,setOriginalSelectedCategory] = useState('');
+    const [originalSelectedVerificationMode, setOriginalSelectedVerificationMode] = useState<string>('');
+
+    const [originalIssuersDid, setOriginalIssuersDid] = useState<string[]>([]);
+
     const [originalSelectedCity, setOriginalSelectedCity] = useState('');
 
     const [image1, setImage1] = useState('')
     const [image2, setImage2] = useState('')
 
-    
+
     const [categoryNames, setCategoryNames] = useState<string[]>(
         [
             'Rock',
@@ -172,13 +194,29 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         ]
     )
 
+    const [verificationMode, setVerificationMode] = useState<string[]>(
+      [
+        'AgeVerification',
+        'StudentVerification',
+        'Both',
+        'General',
+      ]
+    )
+
 
     useEffect(()=>{
         getEventById();
         getPlaces();
         getArtists();
     },[])
-    
+
+    useEffect(() => {
+      if (selectedVerificationMode !== '') {
+        getIssuersByType();
+        setSelectedIssuers([]);
+      }
+    }, [originalIssuersDid])
+
     useEffect(() => {
         if (selectedCity !== '') {
             getVenuesByCity();
@@ -192,7 +230,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
       }
     },[organizerData?.walletId])
 
-    
+
     const getEventById = async()=>{
         try {
             toast.loading('Fetching event...')
@@ -212,9 +250,9 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             setOriginalEventTitle(result.name);
 
             const dateTimeString = result.dateAndTime;
-            
+
             const dateTime = new Date(dateTimeString)
-       
+
             const date = dateTime.toISOString().split('T')[0];
 
             const time = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -227,17 +265,17 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
             setEventDuration(result.eventDuration);
             setOriginalEventDuration(result.eventDuration);
-            
+
             setSelectedCity(result.venueId.placeId);
             setOriginalSelectedCity(result.venueId.placeId);
-          
+
 
             setAboutEvent(result.description);
             setOriginalAboutEvent(result.description)
 
             setSelectedCategory(result.categoryList[0]);
             setOriginalSelectedCategory(result.categoryList[0]);
-            
+
             const vid:string = result.venueId.id;
             const vname:string = result.venueId.name;
 
@@ -272,7 +310,10 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
             setImage1(result.imageUrls[0])
             setImage2(result.imageUrls[1])
-          
+
+            setSelectedVerificationMode(result.verificationMode)
+
+            setOriginalIssuersDid(result.trustedIssuers)
 
         } catch (error) {
             toast.dismiss()
@@ -301,6 +342,38 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         return result;
     }
 
+    const getIssuersByType = async () => {
+      try {
+        const res = await fetch(`${GetIssuersByType}${selectedVerificationMode}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch issuers");
+        }
+
+        let result = await res.json()
+
+        setIssuerData(result)
+
+        console.log("Original Issuers DID: ", originalIssuersDid);
+
+        let issuerArray: selectedIssuersI[] = [];
+
+        result.map((issuer: selectedIssuersI) => {
+          if (originalIssuersDid.includes(issuer.publicDid)) {
+            issuerArray.push(issuer);
+          }
+        })
+
+        console.log("Issuers Array: ", issuerArray);
+
+        setSelectedIssuers(issuerArray)
+
+        console.log(result);
+
+      } catch (error) {
+        console.log("Error loading issuers: ", error);
+      }
+    }
+
 
     const UpdateEvent = async (txId:string) => {
 
@@ -308,7 +381,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         myHeaders.append("Content-Type", "application/json");
 
         toast.loading('Updating event..')
-    
+
         var tiersArray: tierInterface[] = [];
         tiers.forEach(function (tier) {
           var tierObj = {
@@ -318,21 +391,21 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           };
           tiersArray.push(tierObj);
         });
-    
-    
+
+
         var artistArray: string[] = []
         selectedArtists?.map((artist) => (
           artistArray.push(artist.id)
         ))
 
 
-    
+
         let primaryImgPromise = file===undefined?image1:postImg(file);
         let bgImgPromise = file===undefined?image2:postImg(filebg);
         let [primaryImg, bgImg] = await Promise.all([primaryImgPromise, bgImgPromise]);
         var images = [primaryImg, bgImg];
-    
-    
+
+
         let raw = JSON.stringify({
           "event": {
             "id": id,
@@ -349,21 +422,23 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
             "transactionId": txId,
           },
           "imgUrls": images,
+          "verificationMode": selectedVerificationMode,
+          "trustedIssuers": originalIssuersDid,
         }
         )
-    
+
         var requestOptions = {
           method: 'PUT',
           headers: myHeaders,
           body: raw,
         }
-    
+
         let response = await fetch(`${UpdateEventById}${id}`, requestOptions);
         let result = await response.json()
-    
+
         console.log(response)
         console.log(result)
-    
+
         if (response.ok) {
           setEventTitle('')
           setEventDate('')
@@ -375,6 +450,8 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           setTiers([])
           setSelectedArtists([])
           setAboutEvent('')
+          setSelectedVerificationMode('');
+          setSelectedIssuers([])
           setFile(undefined)
           setFilebg(undefined)
           toast.dismiss();
@@ -435,16 +512,16 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
           if (!res.ok) {
             throw new Error("Failed to fetch artists");
           }
-    
+
           let result = await res.json()
           setCitiesData(result);
           console.log(result);
-    
+
         } catch (error) {
           console.log("Error loading artists: ", error);
         }
       }
-    
+
 
 
     const handleCancelClick = (e: any) => {
@@ -470,29 +547,29 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
         let minutes: any = date.getMinutes();
         const ampm = hours >= 12 ? 'pm' : 'am';
         hours = hours % 12;
-        hours = hours ? hours : 12; 
+        hours = hours ? hours : 12;
         minutes = minutes < 10 ? '0' + minutes : minutes;
         const strTime = hours + ':' + minutes + ':00 ' + ampm;
         return strTime;
     };
-    
+
     const formatDate = (date: Date) => {
         const year = date.getFullYear();
         let month: any = date.getMonth() + 1;
         let day: any = date.getDate();
-    
+
         month = month < 10 ? '0' + month : month;
         day = day < 10 ? '0' + day : day;
-    
+
         return year + '-' + month + '-' + day;
     };
-    
+
     const getCurrentDateTimeFormatted = () => {
         const currentDate = new Date(eventDate + 'T' + eventTime);
         return formatDate(currentDate) + ' ' + formatAMPM(currentDate);
     };
 
-    
+
     const previousHash = generateHash([originalEventTitle, originalEventDate, originalEventTime, originalEventDuration, originalAboutEvent, [...originalSelectedArtists], originalSelectedCategory])
 
     const newHash = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedCategory])
@@ -503,7 +580,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
     const handleUpdateEvent = (e: any) => {
         e.preventDefault();
 
-     
+
         if(!account){
           toast.dismiss()
           toast.error('You are not connected to wallet!')
@@ -565,11 +642,11 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
 
     }
 
-    
+
 
     return (
         <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">
-          
+
         <div className="lg:grid md:grid lg:grid-cols-2 md:grid-cols-2 gap-6 p-4 py-8">
           <div className="mb-4">
             <label htmlFor="title" className="form-label block">
@@ -586,7 +663,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               required
             />
           </div>
-  
+
           <div className="mb-4">
             <label htmlFor="date" className="form-label block">
               Event Date
@@ -601,7 +678,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               required
             />
           </div>
-  
+
           <div className="mb-4">
             <label htmlFor="date" className="form-label block">
               Event Time
@@ -616,7 +693,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               required
             />
           </div>
-  
+
           <div className="mb-4">
             <div className='flex flex-col gap-4'>
               <SelectCategoryDropdown
@@ -624,10 +701,10 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
                 selectedCategory={selectedCategory}
                 setselectedCategory={setSelectedCategory}
               />
-  
+
             </div>
           </div>
-  
+
           <div className="mb-4">
             <label htmlFor="duration" className="form-label block">
               Event Duration (hh:mm)
@@ -642,8 +719,8 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               required
             />
           </div>
-  
-  
+
+
           <div className="mb-4">
             <div className='flex flex-col gap-4'>
               <SelectCityDropdown
@@ -653,7 +730,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               />
             </div>
           </div>
-  
+
           <div className={`mb-4`}>
             <AddNewVenueModal
               venueData={venueData}
@@ -672,7 +749,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               </button>
             </div>
           </div>
-  
+
           <div className="mb-4">
             <AddNewTierModal
               tiers={tiers}
@@ -682,7 +759,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               <label className='form-label block'>
                 Event Tiers
               </label>
-  
+
               <div className={`flex flex-col gap-4`}>
                 <div className={`flex flex-wrap gap-2 dark:border-gray-600 border-gray-300 border-2 rounded border-dashed min-h-[57px] p-1`}>
                   {tiers.length > 0 ?
@@ -701,14 +778,14 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
                     <p className='w-full flex justify-center items-center'>No Tiers Selected</p>
                   }
                 </div>
-  
+
                 <button disabled className='btn btn-primary' data-add-tier-trigger>
                   Add Seat Tier
                 </button>
               </div>
             </div>
           </div>
-  
+
           <div className="mb-4">
             <AddNewArtistModal
               artistData={artistData}
@@ -727,7 +804,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               </button>
             </div>
           </div>
-  
+
           <div className="mb-4">
             <label htmlFor="about" className="form-label block">
               About the Event
@@ -742,7 +819,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               required
             ></textarea>
           </div>
-  
+
           <div className='mb-4'>
             <ImageSelector
               title={"Primary Image"}
@@ -752,7 +829,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               setImageU={setImage1}
             />
           </div>
-  
+
           <div className='mb-4'>
             <ImageSelector
               title={"Background Image"}
@@ -762,7 +839,27 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
               setImageU = {setImage2}
             />
           </div>
-  
+
+          <div className="mb-4">
+            <div className='flex flex-col gap-4'>
+              <SelectVerificationModeDropdown
+                verificationMode={verificationMode}
+                selectedVerificationMode={selectedVerificationMode}
+                setSelectedVerificationMode={setSelectedVerificationMode}
+                status={false}
+              />
+            </div>
+          </div>
+
+          <div className='flex flex-col gap-4'>
+            <SelectIssuersDropdown
+              issuerData={issuerData}
+              selectedIssuers={selectedIssuers}
+              setSelectedIssuers={setSelectedIssuers}
+              status={false}
+            />
+          </div>
+
           <div className="col-span-2 flex gap-4 pl-1">
                     <button onClick={handleUpdateEvent} type="submit" className="btn btn-primary">
                         Update Event
@@ -772,7 +869,7 @@ const UpdateEventForm: React.FC<IdProps> = ({id}) => {
                     </button>
             </div>
 
-  
+
         </div>
       </div>
     )

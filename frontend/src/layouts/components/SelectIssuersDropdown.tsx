@@ -13,16 +13,17 @@ interface selectedIssuersI {
   publicDid: string,
 }
 
-interface ArtistDetails {
+interface IssuerDetails {
   issuerData: issuerInterface[];
   selectedIssuers: selectedIssuersI[];
   setSelectedIssuers: React.Dispatch<React.SetStateAction<selectedIssuersI[]>>;
+  status: boolean;
 }
 
 
 
 
-export const SelectIssuersDropdown: React.FC<ArtistDetails> = ({ issuerData, selectedIssuers, setSelectedIssuers }) => {
+export const SelectIssuersDropdown: React.FC<IssuerDetails> = ({ issuerData, selectedIssuers, setSelectedIssuers, status }) => {
 
   const [inputValue, setInputValue] = useState("")
   const [open, setOpen] = useState(false);
@@ -39,12 +40,14 @@ export const SelectIssuersDropdown: React.FC<ArtistDetails> = ({ issuerData, sel
               key={index}
               className="btn btn-outline-primary px-4 py-2 flex gap-4 items-center justify-center"
               onClick={() => {
-                const newIssuers = selectedIssuers?.filter((filterIssuer) => (filterIssuer.publicDid !== issuer.publicDid))
-                setSelectedIssuers(newIssuers)
+                if (status) {
+                  const newIssuers = selectedIssuers?.filter((filterIssuer) => (filterIssuer.publicDid !== issuer.publicDid))
+                  setSelectedIssuers(newIssuers)
+                }
               }}
             >
               {issuer.name}
-              <IoClose size={20}/>
+              {status && <IoClose size={20}/>}
             </div>
           ))
           :
@@ -53,7 +56,13 @@ export const SelectIssuersDropdown: React.FC<ArtistDetails> = ({ issuerData, sel
       </div>
       <div
         className="w-full form-input px-8 py-4 flex items-center justify-between rounded"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (status) {
+            setOpen(!open)
+          } else {
+            setOpen(false)
+          }
+        }}
       >
         Select the Issuers
         <FaAngleDown className={`${open && "rotate-180"}`}/>
