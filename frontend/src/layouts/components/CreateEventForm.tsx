@@ -41,7 +41,7 @@ interface venueInterface {
 
 interface issuerInterface {
   name: string,
-  did: string,
+  publicDid: string,
 }
 
 
@@ -67,7 +67,7 @@ interface selectedArtistsI {
 
 interface selectedIssuersI {
   name: string,
-  did: string,
+  publicDid: string,
 }
 
 
@@ -244,6 +244,11 @@ const CreateEventForm = () => {
       artistArray.push(artist.id)
     ))
 
+    var issuerArray: string[] = [];
+    selectedIssuers?.map((issuer) => (
+      issuerArray.push(issuer.publicDid)
+    ))
+
     let primaryImgPromise = postImg(file);
     let bgImgPromise = postImg(filebg);
     let [primaryImg, bgImg] = await Promise.all([primaryImgPromise, bgImgPromise]);
@@ -263,9 +268,13 @@ const CreateEventForm = () => {
         "tierList": tiersArray,
         "transactionId": txId,
       },
+      "verificationMode": selectedVerificationMode,
+      "trustedIssuers": issuerArray,
       "imgUrls": images,
     }
     )
+
+    console.log(raw);
 
     var requestOptions = {
       method: 'POST',
@@ -294,6 +303,8 @@ const CreateEventForm = () => {
       setAboutEvent('')
       setFile(undefined)
       setFilebg(undefined)
+      setSelectedVerificationMode('');
+      setSelectedIssuers([]);
       toast.dismiss();
       toast.success('Event created successfully!');
       router.push('/organizer-profile')
@@ -463,13 +474,15 @@ const CreateEventForm = () => {
     } else if (filebg === undefined) {
       toast.dismiss();
       toast.error('Please upload background image');
+    } else if (selectedVerificationMode === '') {
+      toast.dismiss();
+      toast.error('Please select Verification Mode')
+    } else if (selectedIssuers.length < 1) {
+      toast.dismiss();
+      toast.error('Please select Trusted Issuers')
     }
     else {
-
-
       const hashData = generateHash([eventTitle, eventDate, eventTime, eventDuration, aboutEvent, [...selectedArtists], selectedCategory])
-
-
 
       var tiersList: string[] = [];
       var tiersCapacity: number[] = []
@@ -481,10 +494,6 @@ const CreateEventForm = () => {
     }
 
   }
-
-
-
-
 
   return (
     <div className="mx-auto border dark:border-gray-600 border-gray-300 rounded-lg">

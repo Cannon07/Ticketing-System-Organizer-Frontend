@@ -5,12 +5,12 @@ import Loader from "./Loader";
 
 interface issuerInterface {
   name: string,
-  did: string,
+  publicDid: string,
 }
 
 interface selectedIssuersI {
   name: string,
-  did: string,
+  publicDid: string,
 }
 
 interface ArtistDetails {
@@ -39,7 +39,7 @@ export const SelectIssuersDropdown: React.FC<ArtistDetails> = ({ issuerData, sel
               key={index}
               className="btn btn-outline-primary px-4 py-2 flex gap-4 items-center justify-center"
               onClick={() => {
-                const newIssuers = selectedIssuers?.filter((filterIssuer) => (filterIssuer.did !== issuer.did))
+                const newIssuers = selectedIssuers?.filter((filterIssuer) => (filterIssuer.publicDid !== issuer.publicDid))
                 setSelectedIssuers(newIssuers)
               }}
             >
@@ -71,15 +71,15 @@ export const SelectIssuersDropdown: React.FC<ArtistDetails> = ({ issuerData, sel
         {issuerData.length < 1 ?<div className="text-center p-4"> <Loader/> </div>: issuerData.map((issuer, index) => (
           <li
             key={index}
-            className={`p-2 mx-4 mb-1 cursor-pointer ${selectedIssuers?.some(selectedIssuer => selectedIssuer.did === issuer.did) && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${issuer.name?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
+            className={`p-2 mx-4 mb-1 cursor-pointer ${selectedIssuers?.some(selectedIssuer => selectedIssuer.publicDid === issuer.publicDid) && "bg-gray-200 dark:bg-gray-700"} hover:bg-gray-200 dark:hover:bg-gray-700 rounded ${issuer.name?.toLowerCase().startsWith(inputValue) ? "block" : "hidden"}`}
             onClick={() => {
 
               let issuerData = {
-                did: issuer.did,
+                publicDid: issuer.publicDid,
                 name: issuer.name,
               }
 
-              if (!selectedIssuers?.some(selectedIssuer => selectedIssuer.did === issuer.did)) setSelectedIssuers([...selectedIssuers, issuerData])
+              if (!selectedIssuers?.some(selectedIssuer => selectedIssuer.publicDid === issuer.publicDid)) setSelectedIssuers([...selectedIssuers, issuerData])
               setInputValue("")
             }}
           >{issuer.name}</li>
