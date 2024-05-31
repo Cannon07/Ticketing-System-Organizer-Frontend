@@ -32,7 +32,8 @@
     "blog_folder": "event"
   },
 
-"event_settings_2": {
+
+"event_settings_2": {
     "search": true,
     "sticky_header": true,
     "theme_switcher": true,
@@ -44,7 +45,7 @@
 
   "params": {
     "contact_form_action": "#",
-    "copyright": "Designed And Developed by [Zeon Studio](https://zeon.studio)"
+    "copyright": ""
   },
 
   "navigation_button": {
